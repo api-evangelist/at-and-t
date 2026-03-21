@@ -1,0 +1,7 @@
+aid: at-and-t
+url: https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/apis.yml
+modified: '2026-03-21'
+apis: []
+common:
+  - type: Website
+    url: https://www.at-and-t.com
