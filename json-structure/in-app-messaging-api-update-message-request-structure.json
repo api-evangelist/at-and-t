@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/in-app-messaging-api-update-message-request-structure.json",
+  "description": "UpdateMessageRequest schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "object",
+      "properties": {
+        "isUnread": {
+          "type": "boolean",
+          "description": "Updated read status of the message",
+          "example": false
+        }
+      }
+    }
+  },
+  "name": "UpdateMessageRequest"
+}

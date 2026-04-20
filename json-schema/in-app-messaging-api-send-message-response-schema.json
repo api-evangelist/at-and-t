@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-schema/in-app-messaging-api-send-message-response-schema.json",
+  "title": "SendMessageResponse",
+  "description": "SendMessageResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the sent message",
+      "example": "msg-500123"
+    },
+    "resourceURL": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to access the message resource",
+      "example": "https://api.att.com/myMessages/v2/messages/msg-500123"
+    }
+  }
+}

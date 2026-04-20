@@ -1,0 +1,152 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "pan": "https://att.dev/schema/",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "GeographicSite": "pan:GeographicSite",
+    "ProductOrderCreate": "pan:ProductOrderCreate",
+    "ProductOrder": "pan:ProductOrder",
+    "ResourceReservationCreate": "pan:ResourceReservationCreate",
+    "ResourceReservation": "pan:ResourceReservation",
+    "ResourceReservationUpdate": "pan:ResourceReservationUpdate",
+    "PortabilityOrderCreate": "pan:PortabilityOrderCreate",
+    "PortabilityOrder": "pan:PortabilityOrder",
+    "PortabilityOrderUpdate": "pan:PortabilityOrderUpdate",
+    "CancelPortabilityOrder": "pan:CancelPortabilityOrder",
+    "PortabilityOrderCancellation": "pan:PortabilityOrderCancellation",
+    "Resource": "pan:Resource",
+    "ResourceUpdate": "pan:ResourceUpdate",
+    "Product": "pan:Product",
+    "Service": "pan:Service",
+    "TopupBalanceCreate": "pan:TopupBalanceCreate",
+    "TopupBalance": "pan:TopupBalance",
+    "id": {
+      "@id": "pan:id",
+      "@type": "xsd:string"
+    },
+    "name": "schema:name",
+    "href": {
+      "@id": "pan:href",
+      "@type": "@id"
+    },
+    "status": {
+      "@id": "pan:status",
+      "@type": "xsd:string"
+    },
+    "externalId": {
+      "@id": "pan:externalId",
+      "@type": "xsd:string"
+    },
+    "orderItem": {
+      "@id": "pan:orderItem",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "action": {
+      "@id": "pan:action",
+      "@type": "xsd:string"
+    },
+    "product": {
+      "@id": "pan:product",
+      "@type": "@id"
+    },
+    "productOffering": {
+      "@id": "pan:productOffering",
+      "@type": "@id"
+    },
+    "state": {
+      "@id": "pan:state",
+      "@type": "xsd:string"
+    },
+    "resourceCapacity": {
+      "@id": "pan:resourceCapacity",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "resourcePool": {
+      "@id": "pan:resourcePool",
+      "@type": "@id"
+    },
+    "capacityAmount": {
+      "@id": "pan:capacityAmount",
+      "@type": "xsd:integer"
+    },
+    "reservationState": {
+      "@id": "pan:reservationState",
+      "@type": "xsd:string"
+    },
+    "reservedResource": {
+      "@id": "pan:reservedResource",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "value": {
+      "@id": "pan:value",
+      "@type": "xsd:string"
+    },
+    "portabilityOrderItem": {
+      "@id": "pan:portabilityOrderItem",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "msisdn": {
+      "@id": "pan:msisdn",
+      "@type": "xsd:string"
+    },
+    "portingType": {
+      "@id": "pan:portingType",
+      "@type": "xsd:string"
+    },
+    "currentCarrier": {
+      "@id": "pan:currentCarrier",
+      "@type": "xsd:string"
+    },
+    "requestedCompletionDate": {
+      "@id": "pan:requestedCompletionDate",
+      "@type": "xsd:dateTime"
+    },
+    "portabilityOrder": {
+      "@id": "pan:portabilityOrder",
+      "@type": "@id"
+    },
+    "cancellationReason": {
+      "@id": "pan:cancellationReason",
+      "@type": "xsd:string"
+    },
+    "resourceType": {
+      "@id": "pan:resourceType",
+      "@type": "xsd:string"
+    },
+    "serialNumber": {
+      "@id": "pan:serialNumber",
+      "@type": "xsd:string"
+    },
+    "resourceCharacteristic": {
+      "@id": "pan:resourceCharacteristic",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "serviceType": {
+      "@id": "pan:serviceType",
+      "@type": "xsd:string"
+    },
+    "channel": {
+      "@id": "pan:channel",
+      "@type": "@id"
+    },
+    "amount": {
+      "@id": "pan:amount",
+      "@type": "@id"
+    },
+    "units": {
+      "@id": "pan:units",
+      "@type": "xsd:decimal"
+    },
+    "currency": {
+      "@id": "pan:currency",
+      "@type": "xsd:string"
+    }
+  }
+}

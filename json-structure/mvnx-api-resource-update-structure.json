@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-resource-update-structure.json",
+  "description": "ResourceUpdate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "resourceCharacteristic": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Characteristic name to update",
+            "example": "voicemailPassword"
+          },
+          "value": {
+            "type": "string",
+            "description": "New value for the characteristic",
+            "example": "1234"
+          }
+        }
+      }
+    }
+  },
+  "name": "ResourceUpdate"
+}

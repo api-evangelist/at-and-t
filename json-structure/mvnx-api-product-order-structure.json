@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-product-order-structure.json",
+  "description": "ProductOrder schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique product order identifier",
+      "example": "order-500123"
+    },
+    "href": {
+      "type": "uri",
+      "example": "https://devex-web.att.com/productOrder/order-500123"
+    },
+    "state": {
+      "type": "string",
+      "description": "Order state",
+      "enum": [
+        "inProgress",
+        "completed",
+        "cancelled",
+        "failed"
+      ],
+      "example": "inProgress"
+    },
+    "externalId": {
+      "type": "string",
+      "description": "External order identifier",
+      "example": "ext-order-500123"
+    }
+  },
+  "name": "ProductOrder"
+}

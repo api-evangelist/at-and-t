@@ -1,0 +1,241 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T In-App Messaging API"
+  description: "API enabling applications to send, receive, and manage MMS and SMS messages on behalf of authenticated AT&T users with inbox management and delta synchronization."
+  tags:
+    - AT&T
+    - MMS
+    - SMS
+    - Messaging
+    - Inbox
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_IAM_ACCESS_TOKEN: ATT_IAM_ACCESS_TOKEN
+
+capability:
+  consumes:
+    - type: http
+      namespace: att-iam
+      baseUri: https://api.att.com
+      description: "AT&T In-App Messaging API for user messaging"
+      authentication:
+        type: bearer
+        token: "{{ATT_IAM_ACCESS_TOKEN}}"
+      resources:
+        - name: messages
+          path: /myMessages/v2/messages
+          description: "Message send and list operations"
+          operations:
+            - name: send-message
+              method: POST
+              description: "Send MMS or SMS message on behalf of user"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+              body:
+                type: json
+                data:
+                  addresses: "{{tools.addresses}}"
+                  text: "{{tools.text}}"
+            - name: list-messages
+              method: GET
+              description: "List messages from user inbox"
+              inputParameters:
+                - name: limit
+                  in: query
+                  type: integer
+                  required: false
+                  description: "Max messages to return"
+                - name: offset
+                  in: query
+                  type: integer
+                  required: false
+                  description: "Pagination offset"
+                - name: isUnread
+                  in: query
+                  type: boolean
+                  required: false
+                  description: "Filter unread messages"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: message-detail
+          path: /myMessages/v2/messages/{messageId}
+          description: "Individual message operations"
+          operations:
+            - name: get-message
+              method: GET
+              description: "Get message details by ID"
+              inputParameters:
+                - name: messageId
+                  in: path
+                  type: string
+                  required: true
+                  description: "Message ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+            - name: delete-message
+              method: DELETE
+              description: "Delete a message from inbox"
+              inputParameters:
+                - name: messageId
+                  in: path
+                  type: string
+                  required: true
+                  description: "Message ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: message-index
+          path: /myMessages/v2/messages/index
+          description: "Message index cache management"
+          operations:
+            - name: create-message-index
+              method: POST
+              description: "Create inbox index cache for delta sync"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: inbox-delta
+          path: /myMessages/v2/delta
+          description: "Inbox delta synchronization"
+          operations:
+            - name: get-inbox-delta
+              method: GET
+              description: "Get inbox changes since last sync"
+              inputParameters:
+                - name: state
+                  in: query
+                  type: string
+                  required: true
+                  description: "State token from previous sync"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+
+  exposes:
+    - type: rest
+      port: 8101
+      namespace: att-iam-rest
+      resources:
+        - path: /v1/messages
+          name: messages
+          description: "User message inbox operations"
+          operations:
+            - method: POST
+              name: send-message
+              description: "Send a message on behalf of user"
+              call: "att-iam.send-message"
+              with:
+                addresses: "rest.addresses"
+                text: "rest.text"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: GET
+              name: list-messages
+              description: "List user inbox messages"
+              call: "att-iam.list-messages"
+              with:
+                limit: "rest.limit"
+                offset: "rest.offset"
+                isUnread: "rest.isUnread"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/messages/{messageId}
+          name: message-detail
+          description: "Individual message operations"
+          operations:
+            - method: GET
+              name: get-message
+              description: "Get message details"
+              call: "att-iam.get-message"
+              with:
+                messageId: "rest.messageId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9101
+      namespace: att-iam-mcp
+      transport: http
+      tools:
+        - name: send-message
+          description: "Send an MMS or SMS message on behalf of an authenticated AT&T user"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-iam.send-message"
+          with:
+            addresses: "tools.addresses"
+            text: "tools.text"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-messages
+          description: "List messages from the user's AT&T inbox with optional filters"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-iam.list-messages"
+          with:
+            limit: "tools.limit"
+            offset: "tools.offset"
+            isUnread: "tools.isUnread"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-message
+          description: "Get full details of a specific message including content and attachments"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-iam.get-message"
+          with:
+            messageId: "tools.messageId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: delete-message
+          description: "Delete a message from the user's inbox"
+          hints:
+            readOnly: false
+            destructive: true
+            idempotent: true
+          call: "att-iam.delete-message"
+          with:
+            messageId: "tools.messageId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-inbox-delta
+          description: "Get inbox changes since last synchronization for efficient inbox updates"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-iam.get-inbox-delta"
+          with:
+            state: "tools.state"
+          outputParameters:
+            - type: object
+              mapping: "$."

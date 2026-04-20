@@ -1,0 +1,21 @@
+{
+  "messageResultSet": {
+    "messages": [
+      {
+        "messageId": "msg-500123",
+        "from": "tel:+12125551234",
+        "recipients": [
+          "tel:+12125559999"
+        ],
+        "isUnread": false,
+        "isIncoming": true,
+        "type": "TEXT",
+        "typeCode": "1",
+        "timeStamp": "2026-04-19T14:30:00Z"
+      }
+    ],
+    "totalCount": 1,
+    "offset": 0,
+    "limit": 50
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-portability-order-cancellation-structure.json",
+  "description": "PortabilityOrderCancellation schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Cancellation record ID",
+      "example": "cancel-500123"
+    },
+    "state": {
+      "type": "string",
+      "description": "Cancellation state",
+      "example": "completed"
+    },
+    "portabilityOrder": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "port-500123"
+        }
+      }
+    }
+  },
+  "name": "PortabilityOrderCancellation"
+}

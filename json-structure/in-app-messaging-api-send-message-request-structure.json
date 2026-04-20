@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/in-app-messaging-api-send-message-request-structure.json",
+  "description": "SendMessageRequest schema from AT&T API",
+  "type": "object",
+  "required": [
+    "messageRequest"
+  ],
+  "properties": {
+    "messageRequest": {
+      "type": "object",
+      "required": [
+        "addresses"
+      ],
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "description": "List of recipient phone numbers or email addresses",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "tel:+12125551234"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "SMS text content (up to 160 chars for SMS, longer for MMS)",
+          "example": "Hello from the AT&T In-App Messaging API!"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject line (MMS only)",
+          "example": "Greeting"
+        },
+        "group": {
+          "type": "boolean",
+          "description": "If true, send as a group message",
+          "example": false
+        }
+      }
+    }
+  },
+  "name": "SendMessageRequest"
+}

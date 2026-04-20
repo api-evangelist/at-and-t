@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-product-order-create-structure.json",
+  "description": "ProductOrderCreate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "externalId": {
+      "type": "string",
+      "description": "External order identifier for tracking",
+      "example": "ext-order-500123"
+    },
+    "orderItem": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "add",
+              "modify",
+              "delete"
+            ],
+            "example": "add"
+          },
+          "product": {
+            "type": "object",
+            "properties": {
+              "productOffering": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "offer-unlimited-basic"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "name": "ProductOrderCreate"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "sub-a1b2c3d4",
+  "href": "https://devex-web.att.com/product/sub-a1b2c3d4",
+  "status": "active",
+  "productOffering": {
+    "id": "offer-unlimited-basic",
+    "name": "Unlimited Basic Plan"
+  }
+}

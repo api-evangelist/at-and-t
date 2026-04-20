@@ -1,0 +1,128 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "pan": "https://att.dev/schema/",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "TokenRequest": "pan:TokenRequest",
+    "TokenResponse": "pan:TokenResponse",
+    "SendSmsRequest": "pan:SendSmsRequest",
+    "SendSmsResponse": "pan:SendSmsResponse",
+    "DeliveryInfoResponse": "pan:DeliveryInfoResponse",
+    "DeliveryInfo": "pan:DeliveryInfo",
+    "InboundSmsResponse": "pan:InboundSmsResponse",
+    "InboundSmsMessage": "pan:InboundSmsMessage",
+    "clientId": {
+      "@id": "pan:client_id",
+      "@type": "xsd:string"
+    },
+    "clientSecret": {
+      "@id": "pan:client_secret",
+      "@type": "xsd:string"
+    },
+    "grantType": {
+      "@id": "pan:grant_type",
+      "@type": "xsd:string"
+    },
+    "scope": {
+      "@id": "pan:scope",
+      "@type": "xsd:string"
+    },
+    "code": {
+      "@id": "pan:code",
+      "@type": "xsd:string"
+    },
+    "refreshToken": {
+      "@id": "pan:refresh_token",
+      "@type": "xsd:string"
+    },
+    "accessToken": {
+      "@id": "pan:access_token",
+      "@type": "xsd:string"
+    },
+    "expiresIn": {
+      "@id": "pan:expires_in",
+      "@type": "xsd:integer"
+    },
+    "tokenType": {
+      "@id": "pan:token_type",
+      "@type": "xsd:string"
+    },
+    "outboundSMSRequest": {
+      "@id": "pan:outboundSMSRequest",
+      "@type": "@id"
+    },
+    "address": {
+      "@id": "pan:address",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "message": {
+      "@id": "pan:message",
+      "@type": "xsd:string"
+    },
+    "notifyDeliveryStatus": {
+      "@id": "pan:notifyDeliveryStatus",
+      "@type": "xsd:boolean"
+    },
+    "outboundSMSResponse": {
+      "@id": "pan:outboundSMSResponse",
+      "@type": "@id"
+    },
+    "messageId": {
+      "@id": "pan:messageId",
+      "@type": "xsd:string"
+    },
+    "resourceReference": {
+      "@id": "pan:resourceReference",
+      "@type": "@id"
+    },
+    "resourceURL": {
+      "@id": "pan:resourceURL",
+      "@type": "@id"
+    },
+    "deliveryInfoList": {
+      "@id": "pan:deliveryInfoList",
+      "@type": "@id"
+    },
+    "deliveryInfo": {
+      "@id": "pan:deliveryInfo",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "deliveryStatus": {
+      "@id": "pan:deliveryStatus",
+      "@type": "xsd:string"
+    },
+    "inboundSMSMessageList": {
+      "@id": "pan:inboundSMSMessageList",
+      "@type": "@id"
+    },
+    "inboundSMSMessage": {
+      "@id": "pan:inboundSMSMessage",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "senderAddress": {
+      "@id": "pan:senderAddress",
+      "@type": "xsd:string"
+    },
+    "destinationAddress": {
+      "@id": "pan:destinationAddress",
+      "@type": "xsd:string"
+    },
+    "dateTime": {
+      "@id": "pan:dateTime",
+      "@type": "xsd:dateTime"
+    },
+    "numberOfMessagesInThisBatch": {
+      "@id": "pan:numberOfMessagesInThisBatch",
+      "@type": "xsd:integer"
+    },
+    "totalNumberOfPendingMessages": {
+      "@id": "pan:totalNumberOfPendingMessages",
+      "@type": "xsd:integer"
+    }
+  }
+}

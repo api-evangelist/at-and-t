@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-resource-structure.json",
+  "description": "Resource schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique resource identifier",
+      "example": "resource-500123"
+    },
+    "name": {
+      "type": "string",
+      "description": "Device or SIM name",
+      "example": "Samsung Galaxy S25"
+    },
+    "resourceType": {
+      "type": "string",
+      "description": "Type of resource",
+      "enum": [
+        "device",
+        "sim"
+      ],
+      "example": "device"
+    },
+    "status": {
+      "type": "string",
+      "description": "Resource operational status",
+      "enum": [
+        "active",
+        "inactive",
+        "suspended"
+      ],
+      "example": "active"
+    },
+    "serialNumber": {
+      "type": "string",
+      "description": "Device IMEI or SIM ICCID",
+      "example": "IMEI-123456789012345"
+    }
+  },
+  "name": "Resource"
+}

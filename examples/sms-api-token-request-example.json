@@ -1,0 +1,8 @@
+{
+  "client_id": "your_app_key",
+  "client_secret": "your_app_secret",
+  "grant_type": "client_credentials",
+  "scope": "SMS",
+  "code": "auth_code_abc123",
+  "refresh_token": "f6e5d4c3b2a1f6e5d4c3b2a1f6e5d4c3"
+}

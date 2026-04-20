@@ -1,0 +1,136 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "pan": "https://att.dev/schema/",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "SendMessageRequest": "pan:SendMessageRequest",
+    "SendMessageResponse": "pan:SendMessageResponse",
+    "MessageSummary": "pan:MessageSummary",
+    "MessageDetail": "pan:MessageDetail",
+    "MessageListResponse": "pan:MessageListResponse",
+    "UpdateMessageRequest": "pan:UpdateMessageRequest",
+    "UpdateMessageResponse": "pan:UpdateMessageResponse",
+    "MessageIndexResponse": "pan:MessageIndexResponse",
+    "DeltaResponse": "pan:DeltaResponse",
+    "messageRequest": {
+      "@id": "pan:messageRequest",
+      "@type": "@id"
+    },
+    "addresses": {
+      "@id": "pan:addresses",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "text": {
+      "@id": "pan:text",
+      "@type": "xsd:string"
+    },
+    "subject": {
+      "@id": "pan:subject",
+      "@type": "xsd:string"
+    },
+    "group": {
+      "@id": "pan:group",
+      "@type": "xsd:boolean"
+    },
+    "id": {
+      "@id": "pan:id",
+      "@type": "xsd:string"
+    },
+    "resourceURL": {
+      "@id": "pan:resourceURL",
+      "@type": "@id"
+    },
+    "messageId": {
+      "@id": "pan:messageId",
+      "@type": "xsd:string"
+    },
+    "from": {
+      "@id": "pan:from",
+      "@type": "xsd:string"
+    },
+    "recipients": {
+      "@id": "pan:recipients",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "isUnread": {
+      "@id": "pan:isUnread",
+      "@type": "xsd:boolean"
+    },
+    "isIncoming": {
+      "@id": "pan:isIncoming",
+      "@type": "xsd:boolean"
+    },
+    "type": {
+      "@id": "pan:type",
+      "@type": "xsd:string"
+    },
+    "typeCode": {
+      "@id": "pan:typeCode",
+      "@type": "xsd:string"
+    },
+    "timeStamp": {
+      "@id": "pan:timeStamp",
+      "@type": "xsd:dateTime"
+    },
+    "message": {
+      "@id": "pan:message",
+      "@type": "xsd:string"
+    },
+    "messageResultSet": {
+      "@id": "pan:messageResultSet",
+      "@type": "@id"
+    },
+    "messages": {
+      "@id": "pan:messages",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "totalCount": {
+      "@id": "pan:totalCount",
+      "@type": "xsd:integer"
+    },
+    "offset": {
+      "@id": "pan:offset",
+      "@type": "xsd:integer"
+    },
+    "limit": {
+      "@id": "pan:limit",
+      "@type": "xsd:integer"
+    },
+    "messageIndexInfo": {
+      "@id": "pan:messageIndexInfo",
+      "@type": "@id"
+    },
+    "state": {
+      "@id": "pan:state",
+      "@type": "xsd:string"
+    },
+    "status": {
+      "@id": "pan:status",
+      "@type": "xsd:string"
+    },
+    "deltaResponse": {
+      "@id": "pan:deltaResponse",
+      "@type": "@id"
+    },
+    "addedMessages": {
+      "@id": "pan:addedMessages",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "updatedMessages": {
+      "@id": "pan:updatedMessages",
+      "@container": "@set",
+      "@type": "@id"
+    },
+    "deletedMessages": {
+      "@id": "pan:deletedMessages",
+      "@container": "@set",
+      "@type": "xsd:string"
+    }
+  }
+}

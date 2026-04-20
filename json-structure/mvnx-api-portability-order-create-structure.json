@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-portability-order-create-structure.json",
+  "description": "PortabilityOrderCreate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "portabilityOrderItem": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "msisdn": {
+            "type": "string",
+            "description": "Phone number to port",
+            "example": "+12125551234"
+          },
+          "portingType": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "example": "FULL"
+          },
+          "currentCarrier": {
+            "type": "string",
+            "description": "Current carrier name",
+            "example": "Verizon"
+          }
+        }
+      }
+    }
+  },
+  "name": "PortabilityOrderCreate"
+}

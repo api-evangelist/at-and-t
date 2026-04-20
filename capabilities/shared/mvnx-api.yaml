@@ -1,0 +1,309 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T MVNX API"
+  description: "TM Forum-aligned MVNO management API covering subscriber activation, number portability, device management, and balance management for AT&T mobile virtual network operators."
+  tags:
+    - AT&T
+    - MVNO
+    - TM Forum
+    - Subscriber Management
+    - Number Portability
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_MVNX_CLIENT_ID: ATT_MVNX_CLIENT_ID
+
+capability:
+  consumes:
+    - type: http
+      namespace: att-mvnx
+      baseUri: https://devex-web.att.com
+      description: "AT&T MVNX API for MVNO operations"
+      authentication:
+        type: apikey
+        key: X-Client-Id
+        value: "{{ATT_MVNX_CLIENT_ID}}"
+        placement: header
+      resources:
+        - name: product-orders
+          path: /productOrder
+          description: "Subscriber activation and product ordering (TMF 622)"
+          operations:
+            - name: create-product-order
+              method: POST
+              description: "Activate a new subscriber on AT&T network"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+              body:
+                type: json
+                data:
+                  externalId: "{{tools.externalId}}"
+        - name: number-reservations
+          path: /resourceReservation
+          description: "Phone number reservation (TMF 716)"
+          operations:
+            - name: reserve-number
+              method: POST
+              description: "Reserve phone numbers for subscriber assignment"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: portability-orders
+          path: /portabilityOrder
+          description: "Number portability orders (TMF 689)"
+          operations:
+            - name: create-portability-order
+              method: POST
+              description: "Create a number port order"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+            - name: list-portability-orders
+              method: GET
+              description: "List portability orders"
+              inputParameters:
+                - name: state
+                  in: query
+                  type: string
+                  required: false
+                  description: "Filter by order state"
+                - name: limit
+                  in: query
+                  type: integer
+                  required: false
+                  description: "Max records"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: portability-order-detail
+          path: /portabilityOrder/{id}
+          description: "Individual portability order management"
+          operations:
+            - name: get-portability-order
+              method: GET
+              description: "Get port order status"
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+                  description: "Port order ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: resources
+          path: /resource
+          description: "Device and SIM inventory (TMF 639)"
+          operations:
+            - name: list-resources
+              method: GET
+              description: "List subscriber devices and SIMs"
+              inputParameters:
+                - name: relatedParty.id
+                  in: query
+                  type: string
+                  required: false
+                  description: "Filter by subscriber ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: products
+          path: /product/{id}
+          description: "Subscriber profile management (TMF 637)"
+          operations:
+            - name: get-subscriber-profile
+              method: GET
+              description: "Get subscriber plan and profile"
+              inputParameters:
+                - name: id
+                  in: path
+                  type: string
+                  required: true
+                  description: "Subscriber ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: balance
+          path: /topupBalance
+          description: "Balance top-up management (TMF 654)"
+          operations:
+            - name: topup-balance
+              method: POST
+              description: "Add balance to subscriber account"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+
+  exposes:
+    - type: rest
+      port: 8102
+      namespace: att-mvnx-rest
+      resources:
+        - path: /v1/subscribers
+          name: subscribers
+          description: "Subscriber activation and management"
+          operations:
+            - method: POST
+              name: activate-subscriber
+              description: "Activate a new MVNO subscriber"
+              call: "att-mvnx.create-product-order"
+              with:
+                externalId: "rest.externalId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/porting
+          name: porting
+          description: "Number portability management"
+          operations:
+            - method: POST
+              name: create-port-order
+              description: "Submit a number port request"
+              call: "att-mvnx.create-portability-order"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: GET
+              name: list-port-orders
+              description: "List portability orders"
+              call: "att-mvnx.list-portability-orders"
+              with:
+                state: "rest.state"
+                limit: "rest.limit"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/devices
+          name: devices
+          description: "Device and SIM inventory"
+          operations:
+            - method: GET
+              name: list-devices
+              description: "List subscriber devices"
+              call: "att-mvnx.list-resources"
+              with:
+                relatedParty.id: "rest.subscriberId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/balance/topup
+          name: balance-topup
+          description: "Account balance management"
+          operations:
+            - method: POST
+              name: topup-balance
+              description: "Add balance to subscriber account"
+              call: "att-mvnx.topup-balance"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9102
+      namespace: att-mvnx-mcp
+      transport: http
+      tools:
+        - name: activate-subscriber
+          description: "Activate a new subscriber on the AT&T MVNO network with a product plan"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-mvnx.create-product-order"
+          with:
+            externalId: "tools.externalId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: reserve-number
+          description: "Reserve phone numbers from the AT&T number pool for subscriber assignment"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-mvnx.reserve-number"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: create-port-order
+          description: "Create a number portability order to port a subscriber's number to AT&T MVNO"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-mvnx.create-portability-order"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-port-orders
+          description: "List number portability orders with optional state filtering"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-mvnx.list-portability-orders"
+          with:
+            state: "tools.state"
+            limit: "tools.limit"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-port-order-status
+          description: "Get the current status of a number portability order"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-mvnx.get-portability-order"
+          with:
+            id: "tools.orderId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-subscriber-devices
+          description: "List devices and SIMs associated with a subscriber"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-mvnx.list-resources"
+          with:
+            relatedParty.id: "tools.subscriberId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-subscriber-profile
+          description: "Get subscriber plan details and service profile"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-mvnx.get-subscriber-profile"
+          with:
+            id: "tools.subscriberId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: topup-subscriber-balance
+          description: "Add data or voice balance to a prepaid subscriber's account"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-mvnx.topup-balance"
+          outputParameters:
+            - type: object
+              mapping: "$."

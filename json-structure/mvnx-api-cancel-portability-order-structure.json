@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-cancel-portability-order-structure.json",
+  "description": "CancelPortabilityOrder schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "portabilityOrder": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Port order ID to cancel",
+          "example": "port-500123"
+        }
+      }
+    },
+    "cancellationReason": {
+      "type": "string",
+      "description": "Reason for cancellation",
+      "example": "Customer request"
+    }
+  },
+  "name": "CancelPortabilityOrder"
+}

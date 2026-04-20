@@ -1,0 +1,8 @@
+{
+  "outboundSMSResponse": {
+    "messageId": "msg-500123",
+    "resourceReference": {
+      "resourceURL": "https://api.att.com/sms/v3/messaging/outbox/msg-500123"
+    }
+  }
+}

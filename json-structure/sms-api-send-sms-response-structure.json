@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/sms-api-send-sms-response-structure.json",
+  "description": "SendSmsResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "outboundSMSResponse": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "description": "Unique identifier for the sent message",
+          "example": "msg-500123"
+        },
+        "resourceReference": {
+          "type": "object",
+          "properties": {
+            "resourceURL": {
+              "type": "uri",
+              "description": "URL to check delivery status of this message",
+              "example": "https://api.att.com/sms/v3/messaging/outbox/msg-500123"
+            }
+          }
+        }
+      }
+    }
+  },
+  "name": "SendSmsResponse"
+}

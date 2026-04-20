@@ -1,0 +1,10 @@
+{
+  "resourceCapacity": [
+    {
+      "resourcePool": {
+        "id": "pool-212-area"
+      },
+      "capacityAmount": 1
+    }
+  ]
+}

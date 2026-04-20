@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/in-app-messaging-api-message-list-response-structure.json",
+  "description": "MessageListResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "messageResultSet": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "messageId": {
+                "type": "string",
+                "description": "Unique message identifier",
+                "example": "msg-500123"
+              },
+              "from": {
+                "type": "string",
+                "description": "Sender address (phone number or email)",
+                "example": "tel:+12125551234"
+              },
+              "recipients": {
+                "type": "array",
+                "description": "List of recipient addresses",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "tel:+12125559999"
+                ]
+              },
+              "isUnread": {
+                "type": "boolean",
+                "description": "Whether the message has been read",
+                "example": false
+              },
+              "isIncoming": {
+                "type": "boolean",
+                "description": "True if message was received, false if sent",
+                "example": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Message type",
+                "enum": [
+                  "TEXT",
+                  "MMS"
+                ],
+                "example": "TEXT"
+              },
+              "typeCode": {
+                "type": "string",
+                "description": "Numeric type code",
+                "example": "1"
+              },
+              "timeStamp": {
+                "type": "datetime",
+                "description": "Date and time the message was sent or received",
+                "example": "2026-04-19T14:30:00Z"
+              }
+            }
+          }
+        },
+        "totalCount": {
+          "type": "int32",
+          "description": "Total number of messages matching the query",
+          "example": 1
+        },
+        "offset": {
+          "type": "int32",
+          "description": "Current pagination offset",
+          "example": 0
+        },
+        "limit": {
+          "type": "int32",
+          "description": "Maximum messages per page",
+          "example": 50
+        }
+      }
+    }
+  },
+  "name": "MessageListResponse"
+}

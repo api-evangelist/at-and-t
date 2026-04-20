@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-topup-balance-create-structure.json",
+  "description": "TopupBalanceCreate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "channel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "API"
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Subscriber product ID",
+          "example": "sub-a1b2c3d4"
+        }
+      }
+    },
+    "amount": {
+      "type": "object",
+      "properties": {
+        "units": {
+          "type": "double",
+          "description": "Top-up amount",
+          "example": 10.0
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code (ISO 4217)",
+          "example": "USD"
+        }
+      }
+    }
+  },
+  "name": "TopupBalanceCreate"
+}

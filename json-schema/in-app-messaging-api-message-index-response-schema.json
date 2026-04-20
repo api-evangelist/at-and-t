@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-schema/in-app-messaging-api-message-index-response-schema.json",
+  "title": "MessageIndexResponse",
+  "description": "MessageIndexResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "messageIndexInfo": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "description": "State token to use for delta synchronization",
+          "example": "state-a1b2c3d4"
+        },
+        "status": {
+          "type": "string",
+          "description": "Index creation status",
+          "enum": [
+            "INITIALIZED",
+            "IN_PROGRESS",
+            "COMPLETE"
+          ],
+          "example": "INITIALIZED"
+        }
+      }
+    }
+  }
+}

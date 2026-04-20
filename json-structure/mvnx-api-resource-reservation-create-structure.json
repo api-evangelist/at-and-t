@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-resource-reservation-create-structure.json",
+  "description": "ResourceReservationCreate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "resourceCapacity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resourcePool": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "pool-212-area"
+              }
+            }
+          },
+          "capacityAmount": {
+            "type": "int32",
+            "example": 1
+          }
+        }
+      }
+    }
+  },
+  "name": "ResourceReservationCreate"
+}

@@ -1,0 +1,608 @@
+openapi: 3.0.3
+info:
+  title: AT&T In-App Messaging API
+  description: >-
+    A messaging API enabling applications to send, receive, update, and delete
+    MMS and SMS messages on behalf of AT&T users with explicit OAuth consent.
+    Supports messages to phone numbers, short codes, and email addresses across
+    AT&T and other carriers with full inbox management and delta synchronization.
+  version: '2.0'
+  contact:
+    url: https://developer.att.com/support
+  termsOfService: https://www.att.com/gen/general?pid=11561
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+  - url: https://api.att.com
+    description: AT&T API Gateway
+paths:
+  /myMessages/v2/messages:
+    post:
+      operationId: sendMessage
+      summary: AT&T Send MMS or SMS Message
+      description: >-
+        Send an MMS or SMS message on behalf of the authenticated user to one or
+        more recipients. Supports SMS (up to 160 characters) and MMS (up to 1 MB
+        with up to 21 attachments). Supports cross-carrier delivery and group messaging.
+      tags:
+        - Messages
+      security:
+        - oauth2: [IMMN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+            examples:
+              SendMessageRequestExample:
+                summary: Default sendMessage request
+                x-microcks-default: true
+                value:
+                  messageRequest:
+                    addresses:
+                      - tel:+12125551234
+                    text: Hello from the AT&T In-App Messaging API!
+                    subject: Greeting
+      responses:
+        '201':
+          description: Message successfully sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+              examples:
+                SendMessage201Example:
+                  summary: Default sendMessage 201 response
+                  x-microcks-default: true
+                  value:
+                    id: msg-500123
+                    resourceURL: https://api.att.com/myMessages/v2/messages/msg-500123
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    get:
+      operationId: listMessages
+      summary: AT&T List Messages
+      description: >-
+        Retrieve a list of messages from the authenticated user's inbox. Supports
+        filtering by message type, read status, and time range. Returns message
+        metadata without the full message content.
+      tags:
+        - Messages
+      security:
+        - oauth2: [MIM]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of messages to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            example: 50
+        - name: offset
+          in: query
+          required: false
+          description: Number of messages to skip for pagination
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: isUnread
+          in: query
+          required: false
+          description: Filter to only unread messages when true
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: Message list successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+              examples:
+                ListMessages200Example:
+                  summary: Default listMessages 200 response
+                  x-microcks-default: true
+                  value:
+                    messageResultSet:
+                      messages:
+                        - messageId: msg-500123
+                          from: tel:+12125551234
+                          recipients:
+                            - tel:+12125559999
+                          isUnread: false
+                          isIncoming: true
+                          type: TEXT
+                          typeCode: '1'
+                          timeStamp: '2026-04-19T14:30:00Z'
+                      totalCount: 1
+                      offset: 0
+                      limit: 50
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /myMessages/v2/messages/{messageId}:
+    get:
+      operationId: getMessage
+      summary: AT&T Get Message Details
+      description: >-
+        Retrieve the full details and content of a specific message by its ID,
+        including text content, attachments, sender, recipients, and metadata.
+      tags:
+        - Messages
+      security:
+        - oauth2: [MIM]
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          description: Unique message identifier
+          schema:
+            type: string
+            example: msg-500123
+      responses:
+        '200':
+          description: Message details successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDetail'
+              examples:
+                GetMessage200Example:
+                  summary: Default getMessage 200 response
+                  x-microcks-default: true
+                  value:
+                    message:
+                      messageId: msg-500123
+                      from: tel:+12125551234
+                      recipients:
+                        - tel:+12125559999
+                      text: Hello from the AT&T In-App Messaging API!
+                      subject: Greeting
+                      isUnread: false
+                      isIncoming: true
+                      type: TEXT
+                      typeCode: '1'
+                      timeStamp: '2026-04-19T14:30:00Z'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    put:
+      operationId: updateMessage
+      summary: AT&T Update Message Properties
+      description: >-
+        Update the properties of a message, such as marking it as read or unread.
+        Only the isUnread field can be modified.
+      tags:
+        - Messages
+      security:
+        - oauth2: [MIM]
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          description: Unique message identifier
+          schema:
+            type: string
+            example: msg-500123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMessageRequest'
+            examples:
+              UpdateMessageRequestExample:
+                summary: Default updateMessage request
+                x-microcks-default: true
+                value:
+                  message:
+                    isUnread: false
+      responses:
+        '200':
+          description: Message successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateMessageResponse'
+              examples:
+                UpdateMessage200Example:
+                  summary: Default updateMessage 200 response
+                  x-microcks-default: true
+                  value:
+                    id: msg-500123
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    delete:
+      operationId: deleteMessage
+      summary: AT&T Delete Message
+      description: >-
+        Permanently delete a specific message from the user's inbox by its ID.
+        This action cannot be undone.
+      tags:
+        - Messages
+      security:
+        - oauth2: [MIM]
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          description: Unique message identifier
+          schema:
+            type: string
+            example: msg-500123
+      responses:
+        '204':
+          description: Message successfully deleted
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /myMessages/v2/messages/index:
+    post:
+      operationId: createMessageIndex
+      summary: AT&T Create Message Index Cache
+      description: >-
+        Create or refresh the server-side message index cache for the authenticated
+        user. This index must be created before delta synchronization can be used.
+        Returns a state object for subsequent delta sync calls.
+      tags:
+        - Inbox Management
+      security:
+        - oauth2: [MIM]
+      responses:
+        '200':
+          description: Message index successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageIndexResponse'
+              examples:
+                CreateMessageIndex200Example:
+                  summary: Default createMessageIndex 200 response
+                  x-microcks-default: true
+                  value:
+                    messageIndexInfo:
+                      state: state-a1b2c3d4
+                      status: INITIALIZED
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /myMessages/v2/delta:
+    get:
+      operationId: getInboxDelta
+      summary: AT&T Get Inbox Changes (Delta Sync)
+      description: >-
+        Retrieve changes to the user's inbox since the last synchronization using
+        a state token. Returns added, updated, and deleted messages since the
+        previous state. Requires a message index to be created first.
+      tags:
+        - Inbox Management
+      security:
+        - oauth2: [MIM]
+      parameters:
+        - name: state
+          in: query
+          required: true
+          description: State token from the previous delta sync or index creation
+          schema:
+            type: string
+            example: state-a1b2c3d4
+      responses:
+        '200':
+          description: Delta changes successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeltaResponse'
+              examples:
+                GetInboxDelta200Example:
+                  summary: Default getInboxDelta 200 response
+                  x-microcks-default: true
+                  value:
+                    deltaResponse:
+                      addedMessages:
+                        - messageId: msg-500789
+                          from: tel:+12125551234
+                          isUnread: true
+                          type: TEXT
+                          timeStamp: '2026-04-19T15:00:00Z'
+                      updatedMessages: []
+                      deletedMessages: []
+                      state: state-e5f6g7h8
+        '400':
+          description: Bad request - invalid state token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: AT&T OAuth 2.0 with user consent via authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.att.com/oauth/v4/authorize
+          tokenUrl: https://api.att.com/oauth/v4/token
+          scopes:
+            IMMN: Send Message - send MMS and SMS messages on behalf of user
+            MIM: Message Inbox Management - read, update, and delete messages
+  schemas:
+    SendMessageRequest:
+      type: object
+      required:
+        - messageRequest
+      properties:
+        messageRequest:
+          type: object
+          required:
+            - addresses
+          properties:
+            addresses:
+              type: array
+              description: List of recipient phone numbers or email addresses
+              items:
+                type: string
+              example:
+                - tel:+12125551234
+            text:
+              type: string
+              description: SMS text content (up to 160 chars for SMS, longer for MMS)
+              example: Hello from the AT&T In-App Messaging API!
+            subject:
+              type: string
+              description: Subject line (MMS only)
+              example: Greeting
+            group:
+              type: boolean
+              description: If true, send as a group message
+              example: false
+    SendMessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the sent message
+          example: msg-500123
+        resourceURL:
+          type: string
+          format: uri
+          description: URL to access the message resource
+          example: https://api.att.com/myMessages/v2/messages/msg-500123
+    MessageSummary:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: Unique message identifier
+          example: msg-500123
+        from:
+          type: string
+          description: Sender address (phone number or email)
+          example: tel:+12125551234
+        recipients:
+          type: array
+          description: List of recipient addresses
+          items:
+            type: string
+          example:
+            - tel:+12125559999
+        isUnread:
+          type: boolean
+          description: Whether the message has been read
+          example: false
+        isIncoming:
+          type: boolean
+          description: True if message was received, false if sent
+          example: true
+        type:
+          type: string
+          description: Message type
+          enum:
+            - TEXT
+            - MMS
+          example: TEXT
+        typeCode:
+          type: string
+          description: Numeric type code
+          example: '1'
+        timeStamp:
+          type: string
+          format: date-time
+          description: Date and time the message was sent or received
+          example: '2026-04-19T14:30:00Z'
+    MessageDetail:
+      type: object
+      properties:
+        message:
+          allOf:
+            - $ref: '#/components/schemas/MessageSummary'
+            - type: object
+              properties:
+                text:
+                  type: string
+                  description: Full text content of the message
+                  example: Hello from the AT&T In-App Messaging API!
+                subject:
+                  type: string
+                  description: Subject line (MMS only)
+                  example: Greeting
+    MessageListResponse:
+      type: object
+      properties:
+        messageResultSet:
+          type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/MessageSummary'
+            totalCount:
+              type: integer
+              description: Total number of messages matching the query
+              example: 1
+            offset:
+              type: integer
+              description: Current pagination offset
+              example: 0
+            limit:
+              type: integer
+              description: Maximum messages per page
+              example: 50
+    UpdateMessageRequest:
+      type: object
+      properties:
+        message:
+          type: object
+          properties:
+            isUnread:
+              type: boolean
+              description: Updated read status of the message
+              example: false
+    UpdateMessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the updated message
+          example: msg-500123
+    MessageIndexResponse:
+      type: object
+      properties:
+        messageIndexInfo:
+          type: object
+          properties:
+            state:
+              type: string
+              description: State token to use for delta synchronization
+              example: state-a1b2c3d4
+            status:
+              type: string
+              description: Index creation status
+              enum:
+                - INITIALIZED
+                - IN_PROGRESS
+                - COMPLETE
+              example: INITIALIZED
+    DeltaResponse:
+      type: object
+      properties:
+        deltaResponse:
+          type: object
+          properties:
+            addedMessages:
+              type: array
+              description: Messages added since last sync
+              items:
+                $ref: '#/components/schemas/MessageSummary'
+            updatedMessages:
+              type: array
+              description: Messages updated since last sync
+              items:
+                $ref: '#/components/schemas/MessageSummary'
+            deletedMessages:
+              type: array
+              description: Message IDs deleted since last sync
+              items:
+                type: string
+              example: []
+            state:
+              type: string
+              description: New state token for next delta sync call
+              example: state-e5f6g7h8
+    ErrorResponse:
+      type: object
+      properties:
+        RequestError:
+          type: object
+          properties:
+            ServiceException:
+              type: object
+              properties:
+                MessageId:
+                  type: string
+                  description: Error message ID
+                  example: SVC0002
+                Text:
+                  type: string
+                  description: Human-readable error description
+                  example: Invalid input value for message part
+                Variables:
+                  type: string
+                  description: Additional error context
+                  example: address

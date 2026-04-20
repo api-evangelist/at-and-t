@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-service-structure.json",
+  "description": "Service schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique service identifier",
+      "example": "svc-500123"
+    },
+    "href": {
+      "type": "uri",
+      "example": "https://devex-web.att.com/service/svc-500123"
+    },
+    "state": {
+      "type": "string",
+      "description": "Service state",
+      "enum": [
+        "active",
+        "inactive",
+        "reserved"
+      ],
+      "example": "active"
+    },
+    "serviceType": {
+      "type": "string",
+      "description": "Type of service",
+      "example": "MOBILE"
+    }
+  },
+  "name": "Service"
+}

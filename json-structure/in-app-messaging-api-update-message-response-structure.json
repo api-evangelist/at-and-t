@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/in-app-messaging-api-update-message-response-structure.json",
+  "description": "UpdateMessageResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "ID of the updated message",
+      "example": "msg-500123"
+    }
+  },
+  "name": "UpdateMessageResponse"
+}

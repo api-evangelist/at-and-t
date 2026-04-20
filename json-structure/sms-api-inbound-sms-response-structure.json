@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/sms-api-inbound-sms-response-structure.json",
+  "description": "InboundSmsResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "inboundSMSMessageList": {
+      "type": "object",
+      "properties": {
+        "inboundSMSMessage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "messageId": {
+                "type": "string",
+                "description": "Unique identifier for the inbound message",
+                "example": "msg-500456"
+              },
+              "message": {
+                "type": "string",
+                "description": "SMS message text content",
+                "example": "STOP"
+              },
+              "senderAddress": {
+                "type": "string",
+                "description": "Phone number of the message sender in tel:+E.164 format",
+                "example": "tel:+12125551234"
+              },
+              "destinationAddress": {
+                "type": "string",
+                "description": "Short code that received the message",
+                "example": "12345"
+              },
+              "dateTime": {
+                "type": "datetime",
+                "description": "Date and time when the message was received",
+                "example": "2026-04-19T14:30:00Z"
+              }
+            }
+          }
+        },
+        "numberOfMessagesInThisBatch": {
+          "type": "int32",
+          "description": "Number of messages in this response batch",
+          "example": 1
+        },
+        "resourceURL": {
+          "type": "uri",
+          "description": "URL of this inbox resource",
+          "example": "https://api.att.com/sms/v3/messaging/inbox/REG-500123"
+        },
+        "totalNumberOfPendingMessages": {
+          "type": "int32",
+          "description": "Total number of messages waiting to be retrieved",
+          "example": 0
+        }
+      }
+    }
+  },
+  "name": "InboundSmsResponse"
+}

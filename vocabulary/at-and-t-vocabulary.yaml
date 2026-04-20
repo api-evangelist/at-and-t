@@ -1,0 +1,491 @@
+vocabulary: "1.0.0"
+
+info:
+  provider: "AT&T"
+  description: "Unified taxonomy of AT&T developer APIs spanning messaging, MVNO operations, and enterprise wireline services. Maps operational API resources to customer workflows and developer personas."
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+operational:
+  apis:
+    - namespace: att-sms
+      name: AT&T SMS API
+      version: "3.0"
+      baseUrl: https://api.att.com
+      status: active
+    - namespace: att-iam
+      name: AT&T In-App Messaging API
+      version: "2.0"
+      baseUrl: https://api.att.com
+      status: active
+    - namespace: att-mvnx
+      name: AT&T MVNX API
+      version: "4.0.0"
+      baseUrl: https://devex-web.att.com
+      status: active
+    - namespace: att-alliance
+      name: AT&T Alliance Wireline APIs
+      version: "1.0"
+      baseUrl: https://devex-web.att.com
+      status: active
+
+  resources:
+    - name: sms-messages
+      apis:
+        - att-sms
+      actions:
+        - send
+        - get-delivery-status
+        - receive
+    - name: in-app-messages
+      apis:
+        - att-iam
+      actions:
+        - send
+        - list
+        - get
+        - update
+        - delete
+    - name: inbox
+      apis:
+        - att-iam
+      actions:
+        - create-index
+        - sync-delta
+    - name: subscribers
+      apis:
+        - att-mvnx
+      actions:
+        - activate
+        - get-profile
+        - list
+    - name: phone-numbers
+      apis:
+        - att-mvnx
+      actions:
+        - reserve
+        - release
+    - name: portability-orders
+      apis:
+        - att-mvnx
+      actions:
+        - create
+        - list
+        - get
+        - update
+        - cancel
+    - name: devices
+      apis:
+        - att-mvnx
+      actions:
+        - list
+        - get
+        - update
+    - name: balance
+      apis:
+        - att-mvnx
+      actions:
+        - topup
+        - adjust
+    - name: services
+      apis:
+        - att-mvnx
+      actions:
+        - create
+        - get
+        - list
+        - update
+        - delete
+    - name: geographic-sites
+      apis:
+        - att-mvnx
+      actions:
+        - list
+
+  actions:
+    - name: send
+      methods:
+        - POST
+      pattern: write
+    - name: list
+      methods:
+        - GET
+      pattern: read
+    - name: get
+      methods:
+        - GET
+      pattern: read
+    - name: create
+      methods:
+        - POST
+      pattern: write
+    - name: update
+      methods:
+        - PATCH
+        - PUT
+      pattern: write
+    - name: delete
+      methods:
+        - DELETE
+      pattern: destructive
+    - name: cancel
+      methods:
+        - POST
+      pattern: write
+    - name: reserve
+      methods:
+        - POST
+      pattern: write
+    - name: topup
+      methods:
+        - POST
+      pattern: write
+    - name: sync-delta
+      methods:
+        - GET
+      pattern: query
+    - name: activate
+      methods:
+        - POST
+      pattern: write
+
+  schemas:
+    messaging:
+      - name: TokenResponse
+        description: OAuth access token response with expiry
+        properties:
+          - access_token
+          - expires_in
+          - token_type
+          - refresh_token
+      - name: SendSmsRequest
+        description: Request to send SMS to recipients
+        properties:
+          - address
+          - message
+          - notifyDeliveryStatus
+      - name: DeliveryInfo
+        description: SMS delivery status record
+        properties:
+          - address
+          - deliveryStatus
+      - name: InboundSmsMessage
+        description: Inbound SMS message from short code
+        properties:
+          - messageId
+          - message
+          - senderAddress
+          - destinationAddress
+          - dateTime
+      - name: MessageSummary
+        description: Message metadata from inbox
+        properties:
+          - messageId
+          - from
+          - recipients
+          - isUnread
+          - isIncoming
+          - type
+          - timeStamp
+    mvno:
+      - name: ProductOrder
+        description: Subscriber activation order
+        properties:
+          - id
+          - state
+          - externalId
+          - orderItem
+      - name: PortabilityOrder
+        description: Number portability order
+        properties:
+          - id
+          - state
+          - portabilityOrderItem
+          - requestedCompletionDate
+      - name: Resource
+        description: Device or SIM card record
+        properties:
+          - id
+          - name
+          - resourceType
+          - status
+          - serialNumber
+      - name: Product
+        description: Subscriber service plan and profile
+        properties:
+          - id
+          - status
+          - productOffering
+
+  parameters:
+    pagination:
+      - name: limit
+        type: integer
+        apis:
+          - att-iam
+          - att-mvnx
+      - name: offset
+        type: integer
+        apis:
+          - att-iam
+          - att-mvnx
+    identifiers:
+      - name: messageId
+        type: string
+        apis:
+          - att-sms
+          - att-iam
+      - name: registrationId
+        type: string
+        apis:
+          - att-sms
+      - name: subscriberId
+        type: string
+        apis:
+          - att-mvnx
+      - name: orderId
+        type: string
+        apis:
+          - att-mvnx
+    filters:
+      - name: isUnread
+        type: boolean
+        apis:
+          - att-iam
+      - name: state
+        type: string
+        apis:
+          - att-mvnx
+
+  enums:
+    delivery-status:
+      - DeliveredToNetwork
+      - DeliveredToTerminal
+      - DeliveryImpossible
+      - MessageWaiting
+      - DeliveryUncertain
+    message-type:
+      - TEXT
+      - MMS
+    order-states:
+      - inProgress
+      - completed
+      - cancelled
+      - failed
+    reservation-states:
+      - completed
+      - cancelled
+      - inProgress
+    resource-status:
+      - active
+      - inactive
+      - suspended
+    porting-type:
+      - FULL
+      - PARTIAL
+    oauth-scopes:
+      - SMS
+      - MMS
+      - SPEECH
+      - TTS
+      - STTC
+      - ADS
+      - IMMN
+      - MIM
+
+  authentication:
+    schemes:
+      - name: OAuth 2.0 Client Credentials
+        type: oauth2
+        flows:
+          - client_credentials
+        apis:
+          - att-sms
+        scopes:
+          - SMS
+          - MMS
+          - SPEECH
+          - TTS
+          - STTC
+          - ADS
+      - name: OAuth 2.0 Authorization Code
+        type: oauth2
+        flows:
+          - authorization_code
+        apis:
+          - att-iam
+        scopes:
+          - IMMN
+          - MIM
+      - name: Client ID API Key
+        type: apikey
+        headerName: X-Client-Id
+        apis:
+          - att-mvnx
+
+capability:
+  workflows:
+    - name: Messaging
+      file: capabilities/messaging.yaml
+      description: "SMS notifications and in-app messaging for mobile apps and enterprise systems"
+      apisComposed:
+        - att-sms
+        - att-iam
+      toolCount: 8
+      personas:
+        - App Developer
+        - Enterprise Developer
+      domains:
+        - Messaging
+        - Mobile
+    - name: MVNO Operations
+      file: capabilities/mvno-operations.yaml
+      description: "Complete MVNO subscriber lifecycle and number portability management"
+      apisComposed:
+        - att-mvnx
+      toolCount: 8
+      personas:
+        - MVNO Operator
+        - Telecom Engineer
+      domains:
+        - MVNO
+        - Telecommunications
+
+  personas:
+    - id: app-developer
+      name: App Developer
+      description: "Mobile or web application developer embedding messaging into consumer apps"
+      workflows:
+        - Messaging
+    - id: enterprise-developer
+      name: Enterprise Developer
+      description: "Developer building enterprise notification, alerting, or communication systems"
+      workflows:
+        - Messaging
+    - id: mvno-operator
+      name: MVNO Operator
+      description: "MVNO business operator managing AT&T-powered mobile subscribers and services"
+      workflows:
+        - MVNO Operations
+    - id: telecom-engineer
+      name: Telecom Engineer
+      description: "Engineer integrating AT&T network services with BSS/OSS systems via TM Forum APIs"
+      workflows:
+        - MVNO Operations
+
+  domains:
+    - name: Messaging
+      description: SMS and MMS messaging services for consumer and enterprise applications
+      resources:
+        - sms-messages
+        - in-app-messages
+        - inbox
+    - name: MVNO
+      description: Mobile virtual network operator services on AT&T infrastructure
+      resources:
+        - subscribers
+        - phone-numbers
+        - portability-orders
+        - devices
+        - balance
+        - services
+    - name: Mobile
+      description: Mobile network connectivity and subscriber management
+
+  namespaces:
+    consumed:
+      - att-sms
+      - att-iam
+      - att-mvnx
+    rest:
+      - namespace: att-messaging-api
+        port: 8080
+      - namespace: att-mvno-api
+        port: 8081
+    mcp:
+      - namespace: att-messaging-mcp
+        port: 9090
+      - namespace: att-mvno-mcp
+        port: 9091
+
+  binds:
+    - name: ATT_SMS_ACCESS_TOKEN
+      description: OAuth 2.0 bearer token for AT&T SMS API
+      workflows:
+        - Messaging
+    - name: ATT_IAM_ACCESS_TOKEN
+      description: OAuth 2.0 bearer token for AT&T In-App Messaging API (user consent)
+      workflows:
+        - Messaging
+    - name: ATT_MVNX_CLIENT_ID
+      description: Client ID for AT&T MVNX API authentication
+      workflows:
+        - MVNO Operations
+
+crossReference:
+  - resource: sms-messages
+    operations:
+      - sendSms
+      - getSmsDeliveryStatus
+      - getInboundSms
+    workflows:
+      - Messaging
+    personas:
+      - App Developer
+      - Enterprise Developer
+  - resource: in-app-messages
+    operations:
+      - sendMessage
+      - listMessages
+      - getMessage
+      - updateMessage
+      - deleteMessage
+    workflows:
+      - Messaging
+    personas:
+      - App Developer
+  - resource: inbox
+    operations:
+      - createMessageIndex
+      - getInboxDelta
+    workflows:
+      - Messaging
+    personas:
+      - App Developer
+  - resource: subscribers
+    operations:
+      - createProductOrder
+      - getSubscriberProfile
+    workflows:
+      - MVNO Operations
+    personas:
+      - MVNO Operator
+      - Telecom Engineer
+  - resource: portability-orders
+    operations:
+      - createPortabilityOrder
+      - listPortabilityOrders
+      - getPortabilityOrder
+      - updatePortabilityOrder
+      - cancelPortabilityOrder
+    workflows:
+      - MVNO Operations
+    personas:
+      - MVNO Operator
+      - Telecom Engineer
+  - resource: devices
+    operations:
+      - listResources
+      - getResource
+      - updateResource
+    workflows:
+      - MVNO Operations
+    personas:
+      - MVNO Operator
+  - resource: balance
+    operations:
+      - topupBalance
+    workflows:
+      - MVNO Operations
+    personas:
+      - MVNO Operator

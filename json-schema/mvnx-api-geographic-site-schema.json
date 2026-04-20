@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-schema/mvnx-api-geographic-site-schema.json",
+  "title": "GeographicSite",
+  "description": "GeographicSite schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique geographic site identifier",
+      "example": "site-500123"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the geographic site or market area",
+      "example": "US Market - East"
+    },
+    "href": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to this geographic site resource",
+      "example": "https://devex-web.att.com/geographicSite/site-500123"
+    },
+    "status": {
+      "type": "string",
+      "description": "Site availability status",
+      "example": "active"
+    }
+  }
+}

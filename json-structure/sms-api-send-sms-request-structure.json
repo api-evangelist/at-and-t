@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/sms-api-send-sms-request-structure.json",
+  "description": "SendSmsRequest schema from AT&T API",
+  "type": "object",
+  "required": [
+    "outboundSMSRequest"
+  ],
+  "properties": {
+    "outboundSMSRequest": {
+      "type": "object",
+      "required": [
+        "address",
+        "message"
+      ],
+      "properties": {
+        "address": {
+          "type": "array",
+          "description": "List of destination phone numbers in tel:+E.164 format (max 50)",
+          "items": {
+            "type": "string",
+            "example": "tel:+12125551234"
+          },
+          "example": [
+            "tel:+12125551234"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "SMS message text (max 4096 characters)",
+          "example": "Your verification code is 482910. Valid for 10 minutes."
+        },
+        "notifyDeliveryStatus": {
+          "type": "boolean",
+          "description": "If true, delivery status notifications are sent to the registered callback URL",
+          "example": true
+        }
+      }
+    }
+  },
+  "name": "SendSmsRequest"
+}

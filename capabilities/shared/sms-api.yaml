@@ -1,0 +1,166 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T SMS API"
+  description: "RESTful SMS short code messaging API for sending and receiving SMS to AT&T subscribers with delivery tracking and callback support."
+  tags:
+    - AT&T
+    - SMS
+    - Messaging
+    - Short Code
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_SMS_ACCESS_TOKEN: ATT_SMS_ACCESS_TOKEN
+
+capability:
+  consumes:
+    - type: http
+      namespace: att-sms
+      baseUri: https://api.att.com
+      description: "AT&T SMS API for short code messaging"
+      authentication:
+        type: bearer
+        token: "{{ATT_SMS_ACCESS_TOKEN}}"
+      resources:
+        - name: sms-token
+          path: /oauth/v4/token
+          description: "OAuth token management"
+          operations:
+            - name: get-access-token
+              method: POST
+              description: "Obtain OAuth access token using client credentials"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: sms-outbox
+          path: /sms/v3/messaging/outbox
+          description: "SMS outbound messaging"
+          operations:
+            - name: send-sms
+              method: POST
+              description: "Send SMS message to up to 50 recipients"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+              body:
+                type: json
+                data:
+                  address: "{{tools.address}}"
+                  message: "{{tools.message}}"
+        - name: sms-delivery-status
+          path: /sms/v3/messaging/outbox/{messageId}
+          description: "SMS delivery status"
+          operations:
+            - name: get-sms-delivery-status
+              method: GET
+              description: "Get delivery status of a sent SMS message"
+              inputParameters:
+                - name: messageId
+                  in: path
+                  type: string
+                  required: true
+                  description: "Message ID from send SMS response"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: sms-inbox
+          path: /sms/v3/messaging/inbox/{registrationId}
+          description: "SMS inbound messages"
+          operations:
+            - name: get-inbound-sms
+              method: GET
+              description: "Poll for inbound SMS messages on a short code"
+              inputParameters:
+                - name: registrationId
+                  in: path
+                  type: string
+                  required: true
+                  description: "Short code registration ID"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+
+  exposes:
+    - type: rest
+      port: 8100
+      namespace: att-sms-rest
+      resources:
+        - path: /v1/sms/messages
+          name: sms-messages
+          description: "Send SMS messages"
+          operations:
+            - method: POST
+              name: send-sms
+              description: "Send an SMS message to recipients"
+              call: "att-sms.send-sms"
+              with:
+                address: "rest.address"
+                message: "rest.message"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/sms/messages/{messageId}/delivery-status
+          name: sms-delivery-status
+          description: "Get SMS delivery status"
+          operations:
+            - method: GET
+              name: get-sms-delivery-status
+              description: "Retrieve delivery status of a sent SMS"
+              call: "att-sms.get-sms-delivery-status"
+              with:
+                messageId: "rest.messageId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9100
+      namespace: att-sms-mcp
+      transport: http
+      tools:
+        - name: send-sms
+          description: "Send an SMS short code message to one or more AT&T subscribers"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-sms.send-sms"
+          with:
+            address: "tools.address"
+            message: "tools.message"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-sms-delivery-status
+          description: "Check the delivery status of a previously sent SMS message"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sms.get-sms-delivery-status"
+          with:
+            messageId: "tools.messageId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-inbound-sms
+          description: "Poll for inbound SMS messages received on a short code"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sms.get-inbound-sms"
+          with:
+            registrationId: "tools.registrationId"
+          outputParameters:
+            - type: object
+              mapping: "$."

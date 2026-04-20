@@ -1,0 +1,9 @@
+{
+  "outboundSMSRequest": {
+    "address": [
+      "tel:+12125551234"
+    ],
+    "message": "Your verification code is 482910. Valid for 10 minutes.",
+    "notifyDeliveryStatus": true
+  }
+}

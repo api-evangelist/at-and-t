@@ -1,0 +1,10 @@
+{
+  "messageRequest": {
+    "addresses": [
+      "tel:+12125551234"
+    ],
+    "text": "Hello from the AT&T In-App Messaging API!",
+    "subject": "Greeting",
+    "group": false
+  }
+}

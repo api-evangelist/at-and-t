@@ -1,0 +1,10 @@
+{
+  "id": "reservation-500123",
+  "href": "https://devex-web.att.com/resourceReservation/reservation-500123",
+  "reservationState": "completed",
+  "reservedResource": [
+    {
+      "value": "+12125559999"
+    }
+  ]
+}

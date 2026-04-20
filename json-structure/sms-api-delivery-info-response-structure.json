@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/sms-api-delivery-info-response-structure.json",
+  "description": "DeliveryInfoResponse schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "deliveryInfoList": {
+      "type": "object",
+      "properties": {
+        "deliveryInfo": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string",
+                "description": "Recipient phone number",
+                "example": "tel:+12125551234"
+              },
+              "deliveryStatus": {
+                "type": "string",
+                "description": "Current delivery status of the message",
+                "enum": [
+                  "DeliveredToNetwork",
+                  "DeliveredToTerminal",
+                  "DeliveryImpossible",
+                  "MessageWaiting",
+                  "DeliveryUncertain"
+                ],
+                "example": "DeliveredToTerminal"
+              }
+            }
+          }
+        },
+        "resourceURL": {
+          "type": "uri",
+          "description": "URL of this delivery info resource",
+          "example": "https://api.att.com/sms/v3/messaging/outbox/msg-500123"
+        }
+      }
+    }
+  },
+  "name": "DeliveryInfoResponse"
+}

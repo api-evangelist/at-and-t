@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/sms-api-inbound-sms-message-structure.json",
+  "description": "InboundSmsMessage schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "messageId": {
+      "type": "string",
+      "description": "Unique identifier for the inbound message",
+      "example": "msg-500456"
+    },
+    "message": {
+      "type": "string",
+      "description": "SMS message text content",
+      "example": "STOP"
+    },
+    "senderAddress": {
+      "type": "string",
+      "description": "Phone number of the message sender in tel:+E.164 format",
+      "example": "tel:+12125551234"
+    },
+    "destinationAddress": {
+      "type": "string",
+      "description": "Short code that received the message",
+      "example": "12345"
+    },
+    "dateTime": {
+      "type": "datetime",
+      "description": "Date and time when the message was received",
+      "example": "2026-04-19T14:30:00Z"
+    }
+  },
+  "name": "InboundSmsMessage"
+}

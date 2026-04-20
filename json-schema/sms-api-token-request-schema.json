@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-schema/sms-api-token-request-schema.json",
+  "title": "TokenRequest",
+  "description": "TokenRequest schema from AT&T API",
+  "type": "object",
+  "required": [
+    "client_id",
+    "client_secret",
+    "grant_type",
+    "scope"
+  ],
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "The App Key from your AT&T developer account",
+      "example": "your_app_key"
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "The App Secret from your AT&T developer account",
+      "example": "your_app_secret"
+    },
+    "grant_type": {
+      "type": "string",
+      "description": "OAuth grant type",
+      "enum": [
+        "client_credentials",
+        "authorization_code",
+        "refresh_token"
+      ],
+      "example": "client_credentials"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Space-separated list of API scopes (e.g. SMS, MMS, SPEECH)",
+      "example": "SMS"
+    },
+    "code": {
+      "type": "string",
+      "description": "Authorization code (required for authorization_code grant type)",
+      "example": "auth_code_abc123"
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "Refresh token (required for refresh_token grant type)",
+      "example": "f6e5d4c3b2a1f6e5d4c3b2a1f6e5d4c3"
+    }
+  }
+}

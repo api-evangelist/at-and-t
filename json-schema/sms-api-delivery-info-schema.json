@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-schema/sms-api-delivery-info-schema.json",
+  "title": "DeliveryInfo",
+  "description": "DeliveryInfo schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "address": {
+      "type": "string",
+      "description": "Recipient phone number",
+      "example": "tel:+12125551234"
+    },
+    "deliveryStatus": {
+      "type": "string",
+      "description": "Current delivery status of the message",
+      "enum": [
+        "DeliveredToNetwork",
+        "DeliveredToTerminal",
+        "DeliveryImpossible",
+        "MessageWaiting",
+        "DeliveryUncertain"
+      ],
+      "example": "DeliveredToTerminal"
+    }
+  }
+}

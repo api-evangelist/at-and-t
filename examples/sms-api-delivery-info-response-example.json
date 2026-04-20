@@ -1,0 +1,11 @@
+{
+  "deliveryInfoList": {
+    "deliveryInfo": [
+      {
+        "address": "tel:+12125551234",
+        "deliveryStatus": "DeliveredToTerminal"
+      }
+    ],
+    "resourceURL": "https://api.att.com/sms/v3/messaging/outbox/msg-500123"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-resource-reservation-update-structure.json",
+  "description": "ResourceReservationUpdate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "reservationState": {
+      "type": "string",
+      "description": "Updated reservation state",
+      "enum": [
+        "cancelled"
+      ],
+      "example": "cancelled"
+    }
+  },
+  "name": "ResourceReservationUpdate"
+}

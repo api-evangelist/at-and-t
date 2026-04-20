@@ -1,0 +1,13 @@
+{
+  "externalId": "ext-order-500123",
+  "orderItem": [
+    {
+      "action": "add",
+      "product": {
+        "productOffering": {
+          "id": {}
+        }
+      }
+    }
+  ]
+}

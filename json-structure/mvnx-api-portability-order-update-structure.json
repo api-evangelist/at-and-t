@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/json-structure/mvnx-api-portability-order-update-structure.json",
+  "description": "PortabilityOrderUpdate schema from AT&T API",
+  "type": "object",
+  "properties": {
+    "requestedCompletionDate": {
+      "type": "datetime",
+      "description": "Updated requested completion date",
+      "example": "2026-04-25T00:00:00Z"
+    }
+  },
+  "name": "PortabilityOrderUpdate"
+}

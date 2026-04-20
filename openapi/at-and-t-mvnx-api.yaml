@@ -1,0 +1,1211 @@
+openapi: 3.0.3
+info:
+  title: AT&T MVNX API
+  description: >-
+    TM Forum-aligned API suite for Mobile Virtual Network Operators (MVNOs) using
+    AT&T's network infrastructure. Provides subscriber activation, number management,
+    porting operations, device and SIM management, subscriber profile management,
+    service lifecycle management, and balance/policy management. Follows TMF Open API
+    standards including TMF 622, 637, 639, 640, 654, 674, 689, 702, 716, and 761.
+  version: 4.0.0
+  contact:
+    url: https://devex-web.att.com/mvnx/docs/mvnx-contact-us
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+  - url: https://devex-web.att.com
+    description: AT&T Developer Experience API Gateway
+paths:
+  /geographicSite:
+    get:
+      operationId: listGeographicSites
+      summary: AT&T List Geographic Sites
+      description: >-
+        Inquire about available market service areas and geographic sites for
+        MVNO operations. Corresponds to TMF 674 Geographic Site Management API.
+      tags:
+        - Geographic Sites
+      parameters:
+        - name: serviceType
+          in: query
+          required: false
+          description: Filter by service type
+          schema:
+            type: string
+            example: MOBILE
+      responses:
+        '200':
+          description: Geographic sites successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeographicSite'
+              examples:
+                ListGeographicSites200Example:
+                  summary: Default listGeographicSites 200 response
+                  x-microcks-default: true
+                  value:
+                    - id: site-500123
+                      name: US Market - East
+                      href: https://devex-web.att.com/geographicSite/site-500123
+                      status: active
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /productOrder:
+    post:
+      operationId: createProductOrder
+      summary: AT&T Create Product Order (Subscriber Activation)
+      description: >-
+        Activate a new subscriber on the AT&T MVNO network. Creates a product order
+        for subscriber activation including device provisioning and number assignment.
+        Corresponds to TMF 622 Product Ordering Management API.
+      tags:
+        - Product Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOrderCreate'
+            examples:
+              CreateProductOrderRequestExample:
+                summary: Default createProductOrder request
+                x-microcks-default: true
+                value:
+                  externalId: ext-order-500123
+                  orderItem:
+                    - action: add
+                      product:
+                        productOffering:
+                          id: offer-unlimited-basic
+                        relatedParty:
+                          - role: subscriber
+                            id: sub-a1b2c3d4
+      responses:
+        '201':
+          description: Product order successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOrder'
+              examples:
+                CreateProductOrder201Example:
+                  summary: Default createProductOrder 201 response
+                  x-microcks-default: true
+                  value:
+                    id: order-500123
+                    href: https://devex-web.att.com/productOrder/order-500123
+                    state: inProgress
+                    externalId: ext-order-500123
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /resourceReservation:
+    post:
+      operationId: reserveSubscriberNumber
+      summary: AT&T Reserve Subscriber Number
+      description: >-
+        Reserve one or more phone numbers for subscriber assignment prior to activation.
+        Corresponds to TMF 716 Resource Reservation Management API.
+      tags:
+        - Number Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceReservationCreate'
+            examples:
+              ReserveSubscriberNumberRequestExample:
+                summary: Default reserveSubscriberNumber request
+                x-microcks-default: true
+                value:
+                  resourceCapacity:
+                    - resourcePool:
+                        id: pool-212-area
+                      capacityAmount: 1
+                  reservationItem:
+                    - quantity: 1
+                      resourceCapacity:
+                        capacityDemandAmount: 1
+      responses:
+        '201':
+          description: Number reservation successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceReservation'
+              examples:
+                ReserveSubscriberNumber201Example:
+                  summary: Default reserveSubscriberNumber 201 response
+                  x-microcks-default: true
+                  value:
+                    id: reservation-500123
+                    href: https://devex-web.att.com/resourceReservation/reservation-500123
+                    reservationState: completed
+                    reservedResource:
+                      - value: '+12125559999'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /resourceReservation/{id}:
+    patch:
+      operationId: releaseNumberReservation
+      summary: AT&T Release Reserved Numbers
+      description: >-
+        Release previously reserved phone numbers back to the available pool.
+        Corresponds to TMF 716 Resource Reservation Management API.
+      tags:
+        - Number Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Reservation ID to release
+          schema:
+            type: string
+            example: reservation-500123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceReservationUpdate'
+            examples:
+              ReleaseNumberReservationRequestExample:
+                summary: Default releaseNumberReservation request
+                x-microcks-default: true
+                value:
+                  reservationState: cancelled
+      responses:
+        '200':
+          description: Reservation successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceReservation'
+              examples:
+                ReleaseNumberReservation200Example:
+                  summary: Default releaseNumberReservation 200 response
+                  x-microcks-default: true
+                  value:
+                    id: reservation-500123
+                    reservationState: cancelled
+        '404':
+          description: Reservation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /portabilityOrder:
+    post:
+      operationId: createPortabilityOrder
+      summary: AT&T Create Port Order
+      description: >-
+        Create a number portability order to port a subscriber's existing phone
+        number to the AT&T MVNO network. Corresponds to TMF 689 Number Portability API.
+      tags:
+        - Porting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortabilityOrderCreate'
+            examples:
+              CreatePortabilityOrderRequestExample:
+                summary: Default createPortabilityOrder request
+                x-microcks-default: true
+                value:
+                  portabilityOrderItem:
+                    - msisdn: '+12125551234'
+                      portingType: FULL
+                      currentCarrier: Verizon
+      responses:
+        '201':
+          description: Port order successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortabilityOrder'
+              examples:
+                CreatePortabilityOrder201Example:
+                  summary: Default createPortabilityOrder 201 response
+                  x-microcks-default: true
+                  value:
+                    id: port-500123
+                    href: https://devex-web.att.com/portabilityOrder/port-500123
+                    state: inProgress
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    get:
+      operationId: listPortabilityOrders
+      summary: AT&T List Port Orders
+      description: >-
+        Retrieve a list of number portability orders. Supports filtering by state,
+        date range, and subscriber. Corresponds to TMF 689 Number Portability API.
+      tags:
+        - Porting
+      parameters:
+        - name: state
+          in: query
+          required: false
+          description: Filter by port order state
+          schema:
+            type: string
+            enum:
+              - inProgress
+              - completed
+              - cancelled
+              - failed
+            example: inProgress
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of records to return
+          schema:
+            type: integer
+            example: 50
+        - name: offset
+          in: query
+          required: false
+          description: Pagination offset
+          schema:
+            type: integer
+            example: 0
+      responses:
+        '200':
+          description: Port orders successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortabilityOrder'
+              examples:
+                ListPortabilityOrders200Example:
+                  summary: Default listPortabilityOrders 200 response
+                  x-microcks-default: true
+                  value:
+                    - id: port-500123
+                      href: https://devex-web.att.com/portabilityOrder/port-500123
+                      state: completed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /portabilityOrder/{id}:
+    get:
+      operationId: getPortabilityOrder
+      summary: AT&T Get Port Order Status
+      description: >-
+        Retrieve the status and details of a specific number portability order.
+        Corresponds to TMF 689 Number Portability API.
+      tags:
+        - Porting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Port order ID
+          schema:
+            type: string
+            example: port-500123
+      responses:
+        '200':
+          description: Port order details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortabilityOrder'
+              examples:
+                GetPortabilityOrder200Example:
+                  summary: Default getPortabilityOrder 200 response
+                  x-microcks-default: true
+                  value:
+                    id: port-500123
+                    href: https://devex-web.att.com/portabilityOrder/port-500123
+                    state: completed
+                    portabilityOrderItem:
+                      - msisdn: '+12125551234'
+                        portingType: FULL
+                        currentCarrier: Verizon
+        '404':
+          description: Port order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    patch:
+      operationId: updatePortabilityOrder
+      summary: AT&T Update Port Order
+      description: >-
+        Update details of an in-progress number portability order.
+        Corresponds to TMF 689 Number Portability API.
+      tags:
+        - Porting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Port order ID
+          schema:
+            type: string
+            example: port-500123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortabilityOrderUpdate'
+            examples:
+              UpdatePortabilityOrderRequestExample:
+                summary: Default updatePortabilityOrder request
+                x-microcks-default: true
+                value:
+                  requestedCompletionDate: '2026-04-25T00:00:00Z'
+      responses:
+        '200':
+          description: Port order successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortabilityOrder'
+              examples:
+                UpdatePortabilityOrder200Example:
+                  summary: Default updatePortabilityOrder 200 response
+                  x-microcks-default: true
+                  value:
+                    id: port-500123
+                    state: inProgress
+                    requestedCompletionDate: '2026-04-25T00:00:00Z'
+        '404':
+          description: Port order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /cancelPortabilityOrder:
+    post:
+      operationId: cancelPortabilityOrder
+      summary: AT&T Cancel Port Order
+      description: >-
+        Cancel an in-progress number portability order.
+        Corresponds to TMF 689 Number Portability API.
+      tags:
+        - Porting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelPortabilityOrder'
+            examples:
+              CancelPortabilityOrderRequestExample:
+                summary: Default cancelPortabilityOrder request
+                x-microcks-default: true
+                value:
+                  portabilityOrder:
+                    id: port-500123
+                  cancellationReason: Customer request
+      responses:
+        '201':
+          description: Port order cancellation submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortabilityOrderCancellation'
+              examples:
+                CancelPortabilityOrder201Example:
+                  summary: Default cancelPortabilityOrder 201 response
+                  x-microcks-default: true
+                  value:
+                    id: cancel-500123
+                    state: completed
+                    portabilityOrder:
+                      id: port-500123
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /resource:
+    get:
+      operationId: listResources
+      summary: AT&T List Devices and SIMs
+      description: >-
+        Retrieve device details and SIM information for subscribers.
+        Corresponds to TMF 639 Resource Inventory API.
+      tags:
+        - Device Management
+      parameters:
+        - name: relatedParty.id
+          in: query
+          required: false
+          description: Filter resources by subscriber ID
+          schema:
+            type: string
+            example: sub-a1b2c3d4
+      responses:
+        '200':
+          description: Resources successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+              examples:
+                ListResources200Example:
+                  summary: Default listResources 200 response
+                  x-microcks-default: true
+                  value:
+                    - id: resource-500123
+                      name: Samsung Galaxy S25
+                      resourceType: device
+                      status: active
+                      serialNumber: IMEI-123456789012345
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /resource/{id}:
+    get:
+      operationId: getResource
+      summary: AT&T Get Device or SIM Status
+      description: >-
+        Retrieve the current status and details of a specific device or SIM card.
+        Corresponds to TMF 639 Resource Inventory API.
+      tags:
+        - Device Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Resource (device or SIM) ID
+          schema:
+            type: string
+            example: resource-500123
+      responses:
+        '200':
+          description: Resource details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+              examples:
+                GetResource200Example:
+                  summary: Default getResource 200 response
+                  x-microcks-default: true
+                  value:
+                    id: resource-500123
+                    name: Samsung Galaxy S25
+                    resourceType: device
+                    status: active
+                    serialNumber: IMEI-123456789012345
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    patch:
+      operationId: updateResource
+      summary: AT&T Update Resource (Reset Voicemail Password)
+      description: >-
+        Update a resource attribute, such as resetting the voicemail password for
+        a subscriber's device. Corresponds to TMF 702 Resource Activation and
+        Configuration API.
+      tags:
+        - Device Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: string
+            example: resource-500123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceUpdate'
+            examples:
+              UpdateResourceRequestExample:
+                summary: Default updateResource request
+                x-microcks-default: true
+                value:
+                  resourceCharacteristic:
+                    - name: voicemailPassword
+                      value: '1234'
+      responses:
+        '200':
+          description: Resource successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+              examples:
+                UpdateResource200Example:
+                  summary: Default updateResource 200 response
+                  x-microcks-default: true
+                  value:
+                    id: resource-500123
+                    status: active
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /product/{id}:
+    get:
+      operationId: getSubscriberProfile
+      summary: AT&T Get Subscriber Profile
+      description: >-
+        Retrieve the product (subscriber profile) details for a specific subscriber
+        including their plan, features, and service options.
+        Corresponds to TMF 637 Product Inventory Management API.
+      tags:
+        - Subscriber Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Subscriber or product ID
+          schema:
+            type: string
+            example: sub-a1b2c3d4
+      responses:
+        '200':
+          description: Subscriber profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                GetSubscriberProfile200Example:
+                  summary: Default getSubscriberProfile 200 response
+                  x-microcks-default: true
+                  value:
+                    id: sub-a1b2c3d4
+                    href: https://devex-web.att.com/product/sub-a1b2c3d4
+                    status: active
+                    productOffering:
+                      id: offer-unlimited-basic
+                      name: Unlimited Basic Plan
+        '404':
+          description: Subscriber not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /service/{id}:
+    get:
+      operationId: getService
+      summary: AT&T Get Service (HLR Registration)
+      description: >-
+        Confirm HLR (Home Location Register) registration status for a subscriber's
+        service. Corresponds to TMF 640 Service Activation and Configuration API.
+      tags:
+        - Service Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Service ID
+          schema:
+            type: string
+            example: svc-500123
+      responses:
+        '200':
+          description: Service details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+              examples:
+                GetService200Example:
+                  summary: Default getService 200 response
+                  x-microcks-default: true
+                  value:
+                    id: svc-500123
+                    href: https://devex-web.att.com/service/svc-500123
+                    state: active
+                    serviceType: MOBILE
+        '404':
+          description: Service not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /topupBalance:
+    post:
+      operationId: topupBalance
+      summary: AT&T Create Balance Top-Up
+      description: >-
+        Add data or voice balance to a subscriber's account.
+        Corresponds to TMF 654 Prepay Balance Management API.
+      tags:
+        - Balance Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopupBalanceCreate'
+            examples:
+              TopupBalanceRequestExample:
+                summary: Default topupBalance request
+                x-microcks-default: true
+                value:
+                  channel:
+                    name: API
+                  product:
+                    id: sub-a1b2c3d4
+                  amount:
+                    units: 10.00
+                    currency: USD
+      responses:
+        '201':
+          description: Balance top-up successfully processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopupBalance'
+              examples:
+                TopupBalance201Example:
+                  summary: Default topupBalance 201 response
+                  x-microcks-default: true
+                  value:
+                    id: topup-500123
+                    href: https://devex-web.att.com/topupBalance/topup-500123
+                    status: completed
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  securitySchemes:
+    clientId:
+      type: apiKey
+      in: header
+      name: X-Client-Id
+      description: Client ID enforcement policy for MVNX API authentication
+  schemas:
+    GeographicSite:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique geographic site identifier
+          example: site-500123
+        name:
+          type: string
+          description: Name of the geographic site or market area
+          example: US Market - East
+        href:
+          type: string
+          format: uri
+          description: URL to this geographic site resource
+          example: https://devex-web.att.com/geographicSite/site-500123
+        status:
+          type: string
+          description: Site availability status
+          example: active
+    ProductOrderCreate:
+      type: object
+      properties:
+        externalId:
+          type: string
+          description: External order identifier for tracking
+          example: ext-order-500123
+        orderItem:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                  - add
+                  - modify
+                  - delete
+                example: add
+              product:
+                type: object
+                properties:
+                  productOffering:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: offer-unlimited-basic
+    ProductOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique product order identifier
+          example: order-500123
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/productOrder/order-500123
+        state:
+          type: string
+          description: Order state
+          enum:
+            - inProgress
+            - completed
+            - cancelled
+            - failed
+          example: inProgress
+        externalId:
+          type: string
+          description: External order identifier
+          example: ext-order-500123
+    ResourceReservationCreate:
+      type: object
+      properties:
+        resourceCapacity:
+          type: array
+          items:
+            type: object
+            properties:
+              resourcePool:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: pool-212-area
+              capacityAmount:
+                type: integer
+                example: 1
+    ResourceReservation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique reservation identifier
+          example: reservation-500123
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/resourceReservation/reservation-500123
+        reservationState:
+          type: string
+          description: Reservation state
+          enum:
+            - completed
+            - cancelled
+            - inProgress
+          example: completed
+        reservedResource:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                description: Reserved phone number
+                example: '+12125559999'
+    ResourceReservationUpdate:
+      type: object
+      properties:
+        reservationState:
+          type: string
+          description: Updated reservation state
+          enum:
+            - cancelled
+          example: cancelled
+    PortabilityOrderCreate:
+      type: object
+      properties:
+        portabilityOrderItem:
+          type: array
+          items:
+            type: object
+            properties:
+              msisdn:
+                type: string
+                description: Phone number to port
+                example: '+12125551234'
+              portingType:
+                type: string
+                enum:
+                  - FULL
+                  - PARTIAL
+                example: FULL
+              currentCarrier:
+                type: string
+                description: Current carrier name
+                example: Verizon
+    PortabilityOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique port order identifier
+          example: port-500123
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/portabilityOrder/port-500123
+        state:
+          type: string
+          description: Port order state
+          enum:
+            - inProgress
+            - completed
+            - cancelled
+            - failed
+          example: inProgress
+        requestedCompletionDate:
+          type: string
+          format: date-time
+          description: Requested completion date for the port
+          example: '2026-04-25T00:00:00Z'
+    PortabilityOrderUpdate:
+      type: object
+      properties:
+        requestedCompletionDate:
+          type: string
+          format: date-time
+          description: Updated requested completion date
+          example: '2026-04-25T00:00:00Z'
+    CancelPortabilityOrder:
+      type: object
+      properties:
+        portabilityOrder:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Port order ID to cancel
+              example: port-500123
+        cancellationReason:
+          type: string
+          description: Reason for cancellation
+          example: Customer request
+    PortabilityOrderCancellation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Cancellation record ID
+          example: cancel-500123
+        state:
+          type: string
+          description: Cancellation state
+          example: completed
+        portabilityOrder:
+          type: object
+          properties:
+            id:
+              type: string
+              example: port-500123
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique resource identifier
+          example: resource-500123
+        name:
+          type: string
+          description: Device or SIM name
+          example: Samsung Galaxy S25
+        resourceType:
+          type: string
+          description: Type of resource
+          enum:
+            - device
+            - sim
+          example: device
+        status:
+          type: string
+          description: Resource operational status
+          enum:
+            - active
+            - inactive
+            - suspended
+          example: active
+        serialNumber:
+          type: string
+          description: Device IMEI or SIM ICCID
+          example: IMEI-123456789012345
+    ResourceUpdate:
+      type: object
+      properties:
+        resourceCharacteristic:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Characteristic name to update
+                example: voicemailPassword
+              value:
+                type: string
+                description: New value for the characteristic
+                example: '1234'
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique product/subscriber identifier
+          example: sub-a1b2c3d4
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/product/sub-a1b2c3d4
+        status:
+          type: string
+          description: Product status
+          enum:
+            - active
+            - suspended
+            - terminated
+          example: active
+        productOffering:
+          type: object
+          properties:
+            id:
+              type: string
+              example: offer-unlimited-basic
+            name:
+              type: string
+              example: Unlimited Basic Plan
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique service identifier
+          example: svc-500123
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/service/svc-500123
+        state:
+          type: string
+          description: Service state
+          enum:
+            - active
+            - inactive
+            - reserved
+          example: active
+        serviceType:
+          type: string
+          description: Type of service
+          example: MOBILE
+    TopupBalanceCreate:
+      type: object
+      properties:
+        channel:
+          type: object
+          properties:
+            name:
+              type: string
+              example: API
+        product:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Subscriber product ID
+              example: sub-a1b2c3d4
+        amount:
+          type: object
+          properties:
+            units:
+              type: number
+              description: Top-up amount
+              example: 10.00
+            currency:
+              type: string
+              description: Currency code (ISO 4217)
+              example: USD
+    TopupBalance:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique top-up transaction identifier
+          example: topup-500123
+        href:
+          type: string
+          format: uri
+          example: https://devex-web.att.com/topupBalance/topup-500123
+        status:
+          type: string
+          description: Transaction status
+          enum:
+            - completed
+            - failed
+            - inProgress
+          example: completed
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: '400'
+        reason:
+          type: string
+          description: Short reason for the error
+          example: Bad Request
+        message:
+          type: string
+          description: Detailed error message
+          example: Invalid input parameter value
+        status:
+          type: string
+          description: HTTP status code
+          example: '400'

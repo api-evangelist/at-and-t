@@ -1,0 +1,12 @@
+{
+  "channel": {
+    "name": "API"
+  },
+  "product": {
+    "id": "sub-a1b2c3d4"
+  },
+  "amount": {
+    "units": 10.0,
+    "currency": "USD"
+  }
+}
