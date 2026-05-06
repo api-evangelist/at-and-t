@@ -1,211 +1,387 @@
-naftiko: "1.0.0-alpha1"
-
+naftiko: 1.0.0-alpha2
 info:
-  label: "AT&T Messaging"
-  description: "Unified messaging capability combining AT&T SMS API and In-App Messaging API for customer notifications, two-way messaging, and inbox management. Used by developers building mobile apps and enterprise notification systems."
+  label: AT&T Messaging
+  description: Unified messaging capability combining AT&T SMS API and In-App Messaging API for customer notifications, two-way
+    messaging, and inbox management. Used by developers building mobile apps and enterprise notification systems.
   tags:
-    - AT&T
-    - SMS
-    - MMS
-    - Messaging
-    - Notifications
-    - Mobile
-  created: "2026-04-19"
-  modified: "2026-04-19"
-
+  - AT&T
+  - SMS
+  - MMS
+  - Messaging
+  - Notifications
+  - Mobile
+  created: '2026-04-19'
+  modified: '2026-05-06'
 binds:
-  - namespace: env
-    keys:
-      ATT_SMS_ACCESS_TOKEN: ATT_SMS_ACCESS_TOKEN
-      ATT_IAM_ACCESS_TOKEN: ATT_IAM_ACCESS_TOKEN
-
+- namespace: env
+  keys:
+    ATT_SMS_ACCESS_TOKEN: ATT_SMS_ACCESS_TOKEN
+    ATT_IAM_ACCESS_TOKEN: ATT_IAM_ACCESS_TOKEN
 capability:
   consumes:
-    - import: att-sms
-      location: ./shared/sms-api.yaml
-    - import: att-iam
-      location: ./shared/in-app-messaging-api.yaml
-
+  - type: http
+    namespace: att-sms
+    baseUri: https://api.att.com
+    description: AT&T SMS API for short code messaging
+    authentication:
+      type: bearer
+      token: '{{ATT_SMS_ACCESS_TOKEN}}'
+    resources:
+    - name: sms-token
+      path: /oauth/v4/token
+      description: OAuth token management
+      operations:
+      - name: get-access-token
+        method: POST
+        description: Obtain OAuth access token using client credentials
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: sms-outbox
+      path: /sms/v3/messaging/outbox
+      description: SMS outbound messaging
+      operations:
+      - name: send-sms
+        method: POST
+        description: Send SMS message to up to 50 recipients
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        body:
+          type: json
+          data:
+            address: '{{tools.address}}'
+            message: '{{tools.message}}'
+    - name: sms-delivery-status
+      path: /sms/v3/messaging/outbox/{messageId}
+      description: SMS delivery status
+      operations:
+      - name: get-sms-delivery-status
+        method: GET
+        description: Get delivery status of a sent SMS message
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          required: true
+          description: Message ID from send SMS response
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: sms-inbox
+      path: /sms/v3/messaging/inbox/{registrationId}
+      description: SMS inbound messages
+      operations:
+      - name: get-inbound-sms
+        method: GET
+        description: Poll for inbound SMS messages on a short code
+        inputParameters:
+        - name: registrationId
+          in: path
+          type: string
+          required: true
+          description: Short code registration ID
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  - type: http
+    namespace: att-iam
+    baseUri: https://api.att.com
+    description: AT&T In-App Messaging API for user messaging
+    authentication:
+      type: bearer
+      token: '{{ATT_IAM_ACCESS_TOKEN}}'
+    resources:
+    - name: messages
+      path: /myMessages/v2/messages
+      description: Message send and list operations
+      operations:
+      - name: send-message
+        method: POST
+        description: Send MMS or SMS message on behalf of user
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        body:
+          type: json
+          data:
+            addresses: '{{tools.addresses}}'
+            text: '{{tools.text}}'
+      - name: list-messages
+        method: GET
+        description: List messages from user inbox
+        inputParameters:
+        - name: limit
+          in: query
+          type: integer
+          required: false
+          description: Max messages to return
+        - name: offset
+          in: query
+          type: integer
+          required: false
+          description: Pagination offset
+        - name: isUnread
+          in: query
+          type: boolean
+          required: false
+          description: Filter unread messages
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: message-detail
+      path: /myMessages/v2/messages/{messageId}
+      description: Individual message operations
+      operations:
+      - name: get-message
+        method: GET
+        description: Get message details by ID
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          required: true
+          description: Message ID
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: delete-message
+        method: DELETE
+        description: Delete a message from inbox
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          required: true
+          description: Message ID
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: message-index
+      path: /myMessages/v2/messages/index
+      description: Message index cache management
+      operations:
+      - name: create-message-index
+        method: POST
+        description: Create inbox index cache for delta sync
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: inbox-delta
+      path: /myMessages/v2/delta
+      description: Inbox delta synchronization
+      operations:
+      - name: get-inbox-delta
+        method: GET
+        description: Get inbox changes since last sync
+        inputParameters:
+        - name: state
+          in: query
+          type: string
+          required: true
+          description: State token from previous sync
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
   exposes:
-    - type: rest
-      port: 8080
-      namespace: att-messaging-api
-      description: "Unified REST API for AT&T SMS and in-app messaging operations."
-      resources:
-        - path: /v1/sms/messages
-          name: sms-outbox
-          description: "SMS short code messaging"
-          operations:
-            - method: POST
-              name: send-sms
-              description: "Send an SMS short code message to up to 50 recipients"
-              call: "att-sms.send-sms"
-              with:
-                address: "rest.address"
-                message: "rest.message"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/sms/messages/{messageId}/status
-          name: sms-delivery-status
-          description: "SMS delivery tracking"
-          operations:
-            - method: GET
-              name: get-sms-delivery-status
-              description: "Check delivery status of a sent SMS"
-              call: "att-sms.get-sms-delivery-status"
-              with:
-                messageId: "rest.messageId"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/sms/inbox/{registrationId}
-          name: sms-inbox
-          description: "SMS short code inbox"
-          operations:
-            - method: GET
-              name: get-inbound-sms
-              description: "Poll for inbound SMS messages"
-              call: "att-sms.get-inbound-sms"
-              with:
-                registrationId: "rest.registrationId"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/in-app/messages
-          name: in-app-messages
-          description: "In-app user messaging inbox"
-          operations:
-            - method: POST
-              name: send-message
-              description: "Send MMS or SMS on behalf of user"
-              call: "att-iam.send-message"
-              with:
-                addresses: "rest.addresses"
-                text: "rest.text"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-            - method: GET
-              name: list-messages
-              description: "List user inbox messages"
-              call: "att-iam.list-messages"
-              with:
-                limit: "rest.limit"
-                offset: "rest.offset"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/in-app/delta
-          name: inbox-delta
-          description: "Inbox delta synchronization"
-          operations:
-            - method: GET
-              name: get-inbox-delta
-              description: "Get inbox changes since last sync"
-              call: "att-iam.get-inbox-delta"
-              with:
-                state: "rest.state"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-
-    - type: mcp
-      port: 9090
-      namespace: att-messaging-mcp
-      transport: http
-      description: "MCP server for AI-assisted AT&T messaging operations including SMS notifications and in-app messaging."
-      tools:
-        - name: sms-send-message
-          description: "Send an SMS short code message to AT&T subscribers for notifications, alerts, or marketing"
-          hints:
-            readOnly: false
-            destructive: false
-          call: "att-sms.send-sms"
-          with:
-            address: "tools.address"
-            message: "tools.message"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: sms-check-delivery-status
-          description: "Check the delivery status of a sent SMS message"
-          hints:
-            readOnly: true
-            idempotent: true
-          call: "att-sms.get-sms-delivery-status"
-          with:
-            messageId: "tools.messageId"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: sms-get-inbound-messages
-          description: "Poll for inbound SMS messages received on a registered short code"
-          hints:
-            readOnly: true
-            idempotent: true
-          call: "att-sms.get-inbound-sms"
-          with:
-            registrationId: "tools.registrationId"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: in-app-send-message
-          description: "Send an MMS or SMS message on behalf of an authenticated AT&T user"
-          hints:
-            readOnly: false
-            destructive: false
-          call: "att-iam.send-message"
-          with:
-            addresses: "tools.addresses"
-            text: "tools.text"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: in-app-list-messages
-          description: "List messages from a user's AT&T inbox with pagination and unread filtering"
-          hints:
-            readOnly: true
-            idempotent: true
-          call: "att-iam.list-messages"
-          with:
-            limit: "tools.limit"
-            offset: "tools.offset"
-            isUnread: "tools.isUnread"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: in-app-get-message
-          description: "Get full details of a specific inbox message including content and metadata"
-          hints:
-            readOnly: true
-            idempotent: true
-          call: "att-iam.get-message"
-          with:
-            messageId: "tools.messageId"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: in-app-delete-message
-          description: "Delete a message from the user's inbox permanently"
-          hints:
-            readOnly: false
-            destructive: true
-            idempotent: true
-          call: "att-iam.delete-message"
-          with:
-            messageId: "tools.messageId"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: in-app-sync-inbox-delta
-          description: "Get inbox changes since last synchronization for efficient message management"
-          hints:
-            readOnly: true
-            idempotent: true
-          call: "att-iam.get-inbox-delta"
-          with:
-            state: "tools.state"
-          outputParameters:
-            - type: object
-              mapping: "$."
+  - type: rest
+    port: 8080
+    namespace: att-messaging-api
+    description: Unified REST API for AT&T SMS and in-app messaging operations.
+    resources:
+    - path: /v1/sms/messages
+      name: sms-outbox
+      description: SMS short code messaging
+      operations:
+      - method: POST
+        name: send-sms
+        description: Send an SMS short code message to up to 50 recipients
+        call: att-sms.send-sms
+        with:
+          address: rest.address
+          message: rest.message
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/sms/messages/{messageId}/status
+      name: sms-delivery-status
+      description: SMS delivery tracking
+      operations:
+      - method: GET
+        name: get-sms-delivery-status
+        description: Check delivery status of a sent SMS
+        call: att-sms.get-sms-delivery-status
+        with:
+          messageId: rest.messageId
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/sms/inbox/{registrationId}
+      name: sms-inbox
+      description: SMS short code inbox
+      operations:
+      - method: GET
+        name: get-inbound-sms
+        description: Poll for inbound SMS messages
+        call: att-sms.get-inbound-sms
+        with:
+          registrationId: rest.registrationId
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/in-app/messages
+      name: in-app-messages
+      description: In-app user messaging inbox
+      operations:
+      - method: POST
+        name: send-message
+        description: Send MMS or SMS on behalf of user
+        call: att-iam.send-message
+        with:
+          addresses: rest.addresses
+          text: rest.text
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: list-messages
+        description: List user inbox messages
+        call: att-iam.list-messages
+        with:
+          limit: rest.limit
+          offset: rest.offset
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/in-app/delta
+      name: inbox-delta
+      description: Inbox delta synchronization
+      operations:
+      - method: GET
+        name: get-inbox-delta
+        description: Get inbox changes since last sync
+        call: att-iam.get-inbox-delta
+        with:
+          state: rest.state
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    port: 9090
+    namespace: att-messaging-mcp
+    transport: http
+    description: MCP server for AI-assisted AT&T messaging operations including SMS notifications and in-app messaging.
+    tools:
+    - name: sms-send-message
+      description: Send an SMS short code message to AT&T subscribers for notifications, alerts, or marketing
+      hints:
+        readOnly: false
+        destructive: false
+      call: att-sms.send-sms
+      with:
+        address: tools.address
+        message: tools.message
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: sms-check-delivery-status
+      description: Check the delivery status of a sent SMS message
+      hints:
+        readOnly: true
+        idempotent: true
+      call: att-sms.get-sms-delivery-status
+      with:
+        messageId: tools.messageId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: sms-get-inbound-messages
+      description: Poll for inbound SMS messages received on a registered short code
+      hints:
+        readOnly: true
+        idempotent: true
+      call: att-sms.get-inbound-sms
+      with:
+        registrationId: tools.registrationId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: in-app-send-message
+      description: Send an MMS or SMS message on behalf of an authenticated AT&T user
+      hints:
+        readOnly: false
+        destructive: false
+      call: att-iam.send-message
+      with:
+        addresses: tools.addresses
+        text: tools.text
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: in-app-list-messages
+      description: List messages from a user's AT&T inbox with pagination and unread filtering
+      hints:
+        readOnly: true
+        idempotent: true
+      call: att-iam.list-messages
+      with:
+        limit: tools.limit
+        offset: tools.offset
+        isUnread: tools.isUnread
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: in-app-get-message
+      description: Get full details of a specific inbox message including content and metadata
+      hints:
+        readOnly: true
+        idempotent: true
+      call: att-iam.get-message
+      with:
+        messageId: tools.messageId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: in-app-delete-message
+      description: Delete a message from the user's inbox permanently
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: att-iam.delete-message
+      with:
+        messageId: tools.messageId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: in-app-sync-inbox-delta
+      description: Get inbox changes since last synchronization for efficient message management
+      hints:
+        readOnly: true
+        idempotent: true
+      call: att-iam.get-inbox-delta
+      with:
+        state: tools.state
+      outputParameters:
+      - type: object
+        mapping: $.
