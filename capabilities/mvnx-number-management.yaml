@@ -1,0 +1,131 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T MVNX API — Number Management
+  description: 'AT&T MVNX API — Number Management. 2 operations. Lead operation: AT&T Reserve Subscriber Number. Self-contained
+    Naftiko capability covering one At And T business surface.'
+  tags:
+  - At And T
+  - Number Management
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_AND_T_API_KEY: AT_AND_T_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mvnx-number-management
+    baseUri: https://devex-web.att.com
+    description: AT&T MVNX API — Number Management business capability. Self-contained, no shared references.
+    resources:
+    - name: resourceReservation
+      path: /resourceReservation
+      operations:
+      - name: reservesubscribernumber
+        method: POST
+        description: AT&T Reserve Subscriber Number
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: resourceReservation-id
+      path: /resourceReservation/{id}
+      operations:
+      - name: releasenumberreservation
+        method: PATCH
+        description: AT&T Release Reserved Numbers
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: Reservation ID to release
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: X-Client-Id
+      value: '{{env.AT_AND_T_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: mvnx-number-management-rest
+    port: 8080
+    description: REST adapter for AT&T MVNX API — Number Management. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/resourcereservation
+      name: resourcereservation
+      description: REST surface for resourceReservation.
+      operations:
+      - method: POST
+        name: reservesubscribernumber
+        description: AT&T Reserve Subscriber Number
+        call: mvnx-number-management.reservesubscribernumber
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/resourcereservation/{id}
+      name: resourcereservation-id
+      description: REST surface for resourceReservation-id.
+      operations:
+      - method: PATCH
+        name: releasenumberreservation
+        description: AT&T Release Reserved Numbers
+        call: mvnx-number-management.releasenumberreservation
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mvnx-number-management-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T MVNX API — Number Management. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: at-t-reserve-subscriber-number
+      description: AT&T Reserve Subscriber Number
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: mvnx-number-management.reservesubscribernumber
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-release-reserved-numbers
+      description: AT&T Release Reserved Numbers
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: mvnx-number-management.releasenumberreservation
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

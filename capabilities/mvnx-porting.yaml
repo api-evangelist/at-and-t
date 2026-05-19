@@ -1,0 +1,254 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T MVNX API — Porting
+  description: 'AT&T MVNX API — Porting. 5 operations. Lead operation: AT&T Cancel Port Order. Self-contained Naftiko capability
+    covering one At And T business surface.'
+  tags:
+  - At And T
+  - Porting
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_AND_T_API_KEY: AT_AND_T_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mvnx-porting
+    baseUri: https://devex-web.att.com
+    description: AT&T MVNX API — Porting business capability. Self-contained, no shared references.
+    resources:
+    - name: cancelPortabilityOrder
+      path: /cancelPortabilityOrder
+      operations:
+      - name: cancelportabilityorder
+        method: POST
+        description: AT&T Cancel Port Order
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: portabilityOrder
+      path: /portabilityOrder
+      operations:
+      - name: createportabilityorder
+        method: POST
+        description: AT&T Create Port Order
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listportabilityorders
+        method: GET
+        description: AT&T List Port Orders
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: state
+          in: query
+          type: string
+          description: Filter by port order state
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of records to return
+        - name: offset
+          in: query
+          type: integer
+          description: Pagination offset
+    - name: portabilityOrder-id
+      path: /portabilityOrder/{id}
+      operations:
+      - name: getportabilityorder
+        method: GET
+        description: AT&T Get Port Order Status
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: Port order ID
+          required: true
+      - name: updateportabilityorder
+        method: PATCH
+        description: AT&T Update Port Order
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: Port order ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: X-Client-Id
+      value: '{{env.AT_AND_T_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: mvnx-porting-rest
+    port: 8080
+    description: REST adapter for AT&T MVNX API — Porting. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/cancelportabilityorder
+      name: cancelportabilityorder
+      description: REST surface for cancelPortabilityOrder.
+      operations:
+      - method: POST
+        name: cancelportabilityorder
+        description: AT&T Cancel Port Order
+        call: mvnx-porting.cancelportabilityorder
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/portabilityorder
+      name: portabilityorder
+      description: REST surface for portabilityOrder.
+      operations:
+      - method: POST
+        name: createportabilityorder
+        description: AT&T Create Port Order
+        call: mvnx-porting.createportabilityorder
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listportabilityorders
+        description: AT&T List Port Orders
+        call: mvnx-porting.listportabilityorders
+        with:
+          state: rest.state
+          limit: rest.limit
+          offset: rest.offset
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/portabilityorder/{id}
+      name: portabilityorder-id
+      description: REST surface for portabilityOrder-id.
+      operations:
+      - method: GET
+        name: getportabilityorder
+        description: AT&T Get Port Order Status
+        call: mvnx-porting.getportabilityorder
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: updateportabilityorder
+        description: AT&T Update Port Order
+        call: mvnx-porting.updateportabilityorder
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mvnx-porting-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T MVNX API — Porting. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: at-t-cancel-port-order
+      description: AT&T Cancel Port Order
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: mvnx-porting.cancelportabilityorder
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-create-port-order
+      description: AT&T Create Port Order
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: mvnx-porting.createportabilityorder
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-list-port-orders
+      description: AT&T List Port Orders
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: mvnx-porting.listportabilityorders
+      with:
+        state: tools.state
+        limit: tools.limit
+        offset: tools.offset
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-get-port-order-status
+      description: AT&T Get Port Order Status
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: mvnx-porting.getportabilityorder
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-update-port-order
+      description: AT&T Update Port Order
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: mvnx-porting.updateportabilityorder
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

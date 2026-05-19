@@ -1,0 +1,245 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T In-App Messaging API — Messages
+  description: 'AT&T In-App Messaging API — Messages. 5 operations. Lead operation: AT&T Send MMS or SMS Message. Self-contained
+    Naftiko capability covering one At And T business surface.'
+  tags:
+  - At And T
+  - Messages
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_AND_T_API_KEY: AT_AND_T_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: in-app-messaging-messages
+    baseUri: https://api.att.com
+    description: AT&T In-App Messaging API — Messages business capability. Self-contained, no shared references.
+    resources:
+    - name: myMessages-v2-messages
+      path: /myMessages/v2/messages
+      operations:
+      - name: sendmessage
+        method: POST
+        description: AT&T Send MMS or SMS Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listmessages
+        method: GET
+        description: AT&T List Messages
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of messages to return
+        - name: offset
+          in: query
+          type: integer
+          description: Number of messages to skip for pagination
+        - name: isUnread
+          in: query
+          type: boolean
+          description: Filter to only unread messages when true
+    - name: myMessages-v2-messages-messageId
+      path: /myMessages/v2/messages/{messageId}
+      operations:
+      - name: getmessage
+        method: GET
+        description: AT&T Get Message Details
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          description: Unique message identifier
+          required: true
+      - name: updatemessage
+        method: PUT
+        description: AT&T Update Message Properties
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          description: Unique message identifier
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletemessage
+        method: DELETE
+        description: AT&T Delete Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: messageId
+          in: path
+          type: string
+          description: Unique message identifier
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AT_AND_T_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: in-app-messaging-messages-rest
+    port: 8080
+    description: REST adapter for AT&T In-App Messaging API — Messages. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/mymessages/v2/messages
+      name: mymessages-v2-messages
+      description: REST surface for myMessages-v2-messages.
+      operations:
+      - method: POST
+        name: sendmessage
+        description: AT&T Send MMS or SMS Message
+        call: in-app-messaging-messages.sendmessage
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listmessages
+        description: AT&T List Messages
+        call: in-app-messaging-messages.listmessages
+        with:
+          limit: rest.limit
+          offset: rest.offset
+          isUnread: rest.isUnread
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/mymessages/v2/messages/{messageid}
+      name: mymessages-v2-messages-messageid
+      description: REST surface for myMessages-v2-messages-messageId.
+      operations:
+      - method: GET
+        name: getmessage
+        description: AT&T Get Message Details
+        call: in-app-messaging-messages.getmessage
+        with:
+          messageId: rest.messageId
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updatemessage
+        description: AT&T Update Message Properties
+        call: in-app-messaging-messages.updatemessage
+        with:
+          messageId: rest.messageId
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletemessage
+        description: AT&T Delete Message
+        call: in-app-messaging-messages.deletemessage
+        with:
+          messageId: rest.messageId
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: in-app-messaging-messages-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T In-App Messaging API — Messages. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: at-t-send-mms-sms-message
+      description: AT&T Send MMS or SMS Message
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: in-app-messaging-messages.sendmessage
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-list-messages
+      description: AT&T List Messages
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: in-app-messaging-messages.listmessages
+      with:
+        limit: tools.limit
+        offset: tools.offset
+        isUnread: tools.isUnread
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-get-message-details
+      description: AT&T Get Message Details
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: in-app-messaging-messages.getmessage
+      with:
+        messageId: tools.messageId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-update-message-properties
+      description: AT&T Update Message Properties
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: in-app-messaging-messages.updatemessage
+      with:
+        messageId: tools.messageId
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: at-t-delete-message
+      description: AT&T Delete Message
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: in-app-messaging-messages.deletemessage
+      with:
+        messageId: tools.messageId
+      outputParameters:
+      - type: object
+        mapping: $.

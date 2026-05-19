@@ -1,0 +1,82 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T MVNX API — Subscriber Management
+  description: 'AT&T MVNX API — Subscriber Management. 1 operations. Lead operation: AT&T Get Subscriber Profile. Self-contained
+    Naftiko capability covering one At And T business surface.'
+  tags:
+  - At And T
+  - Subscriber Management
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_AND_T_API_KEY: AT_AND_T_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mvnx-subscriber-management
+    baseUri: https://devex-web.att.com
+    description: AT&T MVNX API — Subscriber Management business capability. Self-contained, no shared references.
+    resources:
+    - name: product-id
+      path: /product/{id}
+      operations:
+      - name: getsubscriberprofile
+        method: GET
+        description: AT&T Get Subscriber Profile
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: Subscriber or product ID
+          required: true
+    authentication:
+      type: apikey
+      key: X-Client-Id
+      value: '{{env.AT_AND_T_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: mvnx-subscriber-management-rest
+    port: 8080
+    description: REST adapter for AT&T MVNX API — Subscriber Management. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/product/{id}
+      name: product-id
+      description: REST surface for product-id.
+      operations:
+      - method: GET
+        name: getsubscriberprofile
+        description: AT&T Get Subscriber Profile
+        call: mvnx-subscriber-management.getsubscriberprofile
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mvnx-subscriber-management-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T MVNX API — Subscriber Management. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: at-t-get-subscriber-profile
+      description: AT&T Get Subscriber Profile
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: mvnx-subscriber-management.getsubscriberprofile
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.

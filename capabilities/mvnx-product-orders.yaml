@@ -1,0 +1,82 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T MVNX API — Product Orders
+  description: 'AT&T MVNX API — Product Orders. 1 operations. Lead operation: AT&T Create Product Order (Subscriber Activation).
+    Self-contained Naftiko capability covering one At And T business surface.'
+  tags:
+  - At And T
+  - Product Orders
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_AND_T_API_KEY: AT_AND_T_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mvnx-product-orders
+    baseUri: https://devex-web.att.com
+    description: AT&T MVNX API — Product Orders business capability. Self-contained, no shared references.
+    resources:
+    - name: productOrder
+      path: /productOrder
+      operations:
+      - name: createproductorder
+        method: POST
+        description: AT&T Create Product Order (Subscriber Activation)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: X-Client-Id
+      value: '{{env.AT_AND_T_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: mvnx-product-orders-rest
+    port: 8080
+    description: REST adapter for AT&T MVNX API — Product Orders. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/productorder
+      name: productorder
+      description: REST surface for productOrder.
+      operations:
+      - method: POST
+        name: createproductorder
+        description: AT&T Create Product Order (Subscriber Activation)
+        call: mvnx-product-orders.createproductorder
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mvnx-product-orders-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T MVNX API — Product Orders. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: at-t-create-product-order-subscriber
+      description: AT&T Create Product Order (Subscriber Activation)
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: mvnx-product-orders.createproductorder
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
