@@ -9,14 +9,14 @@ type: Index
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
   - Fortune 100
-- Telecommunications
-- Wireless
-- Wireline
-- Messaging
-- Speech
-- Mobile
-- Broadband
-- Enterprise
+  - Telecommunications
+  - Wireless
+  - Wireline
+  - Messaging
+  - Speech
+  - Mobile
+  - Broadband
+  - Enterprise
 url: https://raw.githubusercontent.com/api-evangelist/at-and-t/refs/heads/main/apis.yml
 created: '2026-03-21'
 modified: '2026-05-19'
@@ -45,9 +45,9 @@ apis:
     url: https://developer.att.com/sms
   - type: OpenAPI
     url: openapi/at-and-t-sms-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/sms-authentication.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/sms-sms-messaging.yaml
 - aid: at-and-t:att-in-app-messaging-api
   name: AT&T In-App Messaging API
@@ -69,9 +69,9 @@ apis:
     url: https://developer.att.com/oauth-2/docs
   - type: OpenAPI
     url: openapi/at-and-t-in-app-messaging-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/in-app-messaging-inbox-management.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/in-app-messaging-messages.yaml
 - aid: at-and-t:att-oauth-api
   name: AT&T OAuth 2.0 API
@@ -110,21 +110,21 @@ apis:
     url: https://devex-web.att.com/mvnx/docs/mvnx-quickstart
   - type: OpenAPI
     url: openapi/at-and-t-mvnx-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-balance-management.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-device-management.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-geographic-sites.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-number-management.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-porting.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-product-orders.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-service-management.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mvnx-subscriber-management.yaml
 - aid: at-and-t:att-alliance-wireline-apis
   name: AT&T Alliance Wireline APIs
@@ -165,7 +165,7 @@ common:
   url: https://www.att.com/gen/general?pid=11561
 - type: PrivacyPolicy
   url: https://www.att.com/gen/privacy-policy?pid=2506
-- type: SignUp
+- type: Signup
   url: https://developer.att.com/developer/manageMyAccount.jsp
 - type: GitHubOrganization
   url: https://github.com/attdevsupport
