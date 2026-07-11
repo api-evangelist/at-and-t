@@ -1,0 +1,66 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/at-and-t-in-app-messaging-api.yaml, openapi/at-and-t-sms-api.yaml
+schemes:
+- name: oauth2
+  source: openapi/at-and-t-in-app-messaging-api.yaml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://api.att.com/oauth/v4/authorize
+    tokenUrl: https://api.att.com/oauth/v4/token
+  description: AT&T OAuth 2.0 with user consent via authorization code flow
+- name: oauth2
+  source: openapi/at-and-t-sms-api.yaml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://api.att.com/oauth/v4/token
+  description: AT&T OAuth 2.0 authentication using client credentials grant
+scopes:
+- scope: ADS
+  description: Access to Advertising APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
+- scope: IMMN
+  description: Send Message - send MMS and SMS messages on behalf of user
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/at-and-t-in-app-messaging-api.yaml
+- scope: MIM
+  description: Message Inbox Management - read, update, and delete messages
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/at-and-t-in-app-messaging-api.yaml
+- scope: MMS
+  description: Access to MMS messaging APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
+- scope: SMS
+  description: Access to SMS messaging APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
+- scope: SPEECH
+  description: Access to Speech to Text APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
+- scope: STTC
+  description: Access to Speech to Text Custom APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
+- scope: TTS
+  description: Access to Text to Speech APIs
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/at-and-t-sms-api.yaml
