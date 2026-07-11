@@ -1,0 +1,39 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/at-and-t-in-app-messaging-api.yaml, openapi/at-and-t-mvnx-api.yaml, openapi/at-and-t-sms-api.yaml
+summary:
+  types:
+  - apiKey
+  - oauth2
+  api_key_in:
+  - header
+  oauth2_flows:
+  - authorizationCode
+  - clientCredentials
+schemes:
+- name: oauth2
+  type: oauth2
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://api.att.com/oauth/v4/authorize
+    tokenUrl: https://api.att.com/oauth/v4/token
+    scopes: 2
+  description: AT&T OAuth 2.0 with user consent via authorization code flow
+  sources:
+  - openapi/at-and-t-in-app-messaging-api.yaml
+- name: clientId
+  type: apiKey
+  in: header
+  parameter: X-Client-Id
+  description: Client ID enforcement policy for MVNX API authentication
+  sources:
+  - openapi/at-and-t-mvnx-api.yaml
+- name: oauth2
+  type: oauth2
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://api.att.com/oauth/v4/token
+    scopes: 6
+  description: AT&T OAuth 2.0 authentication using client credentials grant
+  sources:
+  - openapi/at-and-t-sms-api.yaml
