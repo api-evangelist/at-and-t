@@ -145,6 +145,8 @@ apis:
   - type: GettingStarted
     url: https://devex-web.att.com/order/docs/get-started-with-ordering-api
 common:
+- type: AgenticAccess
+  url: agentic-access/at-and-t-agentic-access.yml
 - type: DomainSecurity
   url: security/at-and-t-domain-security.yml
 - type: Authentication
