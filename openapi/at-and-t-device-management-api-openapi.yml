@@ -1,0 +1,241 @@
+openapi: 3.0.3
+info:
+  title: AT&T In-App Messaging Authentication Device Management API
+  description: A messaging API enabling applications to send, receive, update, and delete MMS and SMS messages on behalf of AT&T users with explicit OAuth consent. Supports messages to phone numbers, short codes, and email addresses across AT&T and other carriers with full inbox management and delta synchronization.
+  version: '2.0'
+  contact:
+    url: https://developer.att.com/support
+  termsOfService: https://www.att.com/gen/general?pid=11561
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+- url: https://api.att.com
+  description: AT&T API Gateway
+tags:
+- name: Device Management
+paths:
+  /resource:
+    get:
+      operationId: listResources
+      summary: AT&T List Devices and SIMs
+      description: Retrieve device details and SIM information for subscribers. Corresponds to TMF 639 Resource Inventory API.
+      tags:
+      - Device Management
+      parameters:
+      - name: relatedParty.id
+        in: query
+        required: false
+        description: Filter resources by subscriber ID
+        schema:
+          type: string
+          example: sub-a1b2c3d4
+      responses:
+        '200':
+          description: Resources successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+              examples:
+                ListResources200Example:
+                  summary: Default listResources 200 response
+                  x-microcks-default: true
+                  value:
+                  - id: resource-500123
+                    name: Samsung Galaxy S25
+                    resourceType: device
+                    status: active
+                    serialNumber: IMEI-123456789012345
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /resource/{id}:
+    get:
+      operationId: getResource
+      summary: AT&T Get Device or SIM Status
+      description: Retrieve the current status and details of a specific device or SIM card. Corresponds to TMF 639 Resource Inventory API.
+      tags:
+      - Device Management
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Resource (device or SIM) ID
+        schema:
+          type: string
+          example: resource-500123
+      responses:
+        '200':
+          description: Resource details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+              examples:
+                GetResource200Example:
+                  summary: Default getResource 200 response
+                  x-microcks-default: true
+                  value:
+                    id: resource-500123
+                    name: Samsung Galaxy S25
+                    resourceType: device
+                    status: active
+                    serialNumber: IMEI-123456789012345
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    patch:
+      operationId: updateResource
+      summary: AT&T Update Resource (Reset Voicemail Password)
+      description: Update a resource attribute, such as resetting the voicemail password for a subscriber's device. Corresponds to TMF 702 Resource Activation and Configuration API.
+      tags:
+      - Device Management
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+          example: resource-500123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceUpdate'
+            examples:
+              UpdateResourceRequestExample:
+                summary: Default updateResource request
+                x-microcks-default: true
+                value:
+                  resourceCharacteristic:
+                  - name: voicemailPassword
+                    value: '1234'
+      responses:
+        '200':
+          description: Resource successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+              examples:
+                UpdateResource200Example:
+                  summary: Default updateResource 200 response
+                  x-microcks-default: true
+                  value:
+                    id: resource-500123
+                    status: active
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: '400'
+        reason:
+          type: string
+          description: Short reason for the error
+          example: Bad Request
+        message:
+          type: string
+          description: Detailed error message
+          example: Invalid input parameter value
+        status:
+          type: string
+          description: HTTP status code
+          example: '400'
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique resource identifier
+          example: resource-500123
+        name:
+          type: string
+          description: Device or SIM name
+          example: Samsung Galaxy S25
+        resourceType:
+          type: string
+          description: Type of resource
+          enum:
+          - device
+          - sim
+          example: device
+        status:
+          type: string
+          description: Resource operational status
+          enum:
+          - active
+          - inactive
+          - suspended
+          example: active
+        serialNumber:
+          type: string
+          description: Device IMEI or SIM ICCID
+          example: IMEI-123456789012345
+    ResourceUpdate:
+      type: object
+      properties:
+        resourceCharacteristic:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Characteristic name to update
+                example: voicemailPassword
+              value:
+                type: string
+                description: New value for the characteristic
+                example: '1234'
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: AT&T OAuth 2.0 with user consent via authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.att.com/oauth/v4/authorize
+          tokenUrl: https://api.att.com/oauth/v4/token
+          scopes:
+            IMMN: Send Message - send MMS and SMS messages on behalf of user
+            MIM: Message Inbox Management - read, update, and delete messages

@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: AT&T In-App Messaging Authentication Inbox Management API
+  description: A messaging API enabling applications to send, receive, update, and delete MMS and SMS messages on behalf of AT&T users with explicit OAuth consent. Supports messages to phone numbers, short codes, and email addresses across AT&T and other carriers with full inbox management and delta synchronization.
+  version: '2.0'
+  contact:
+    url: https://developer.att.com/support
+  termsOfService: https://www.att.com/gen/general?pid=11561
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+- url: https://api.att.com
+  description: AT&T API Gateway
+tags:
+- name: Inbox Management
+paths:
+  /myMessages/v2/messages/index:
+    post:
+      operationId: createMessageIndex
+      summary: AT&T Create Message Index Cache
+      description: Create or refresh the server-side message index cache for the authenticated user. This index must be created before delta synchronization can be used. Returns a state object for subsequent delta sync calls.
+      tags:
+      - Inbox Management
+      security:
+      - oauth2:
+        - MIM
+      responses:
+        '200':
+          description: Message index successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageIndexResponse'
+              examples:
+                CreateMessageIndex200Example:
+                  summary: Default createMessageIndex 200 response
+                  x-microcks-default: true
+                  value:
+                    messageIndexInfo:
+                      state: state-a1b2c3d4
+                      status: INITIALIZED
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /myMessages/v2/delta:
+    get:
+      operationId: getInboxDelta
+      summary: AT&T Get Inbox Changes (Delta Sync)
+      description: Retrieve changes to the user's inbox since the last synchronization using a state token. Returns added, updated, and deleted messages since the previous state. Requires a message index to be created first.
+      tags:
+      - Inbox Management
+      security:
+      - oauth2:
+        - MIM
+      parameters:
+      - name: state
+        in: query
+        required: true
+        description: State token from the previous delta sync or index creation
+        schema:
+          type: string
+          example: state-a1b2c3d4
+      responses:
+        '200':
+          description: Delta changes successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeltaResponse'
+              examples:
+                GetInboxDelta200Example:
+                  summary: Default getInboxDelta 200 response
+                  x-microcks-default: true
+                  value:
+                    deltaResponse:
+                      addedMessages:
+                      - messageId: msg-500789
+                        from: tel:+12125551234
+                        isUnread: true
+                        type: TEXT
+                        timeStamp: '2026-04-19T15:00:00Z'
+                      updatedMessages: []
+                      deletedMessages: []
+                      state: state-e5f6g7h8
+        '400':
+          description: Bad request - invalid state token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        RequestError:
+          type: object
+          properties:
+            ServiceException:
+              type: object
+              properties:
+                MessageId:
+                  type: string
+                  description: Error message ID
+                  example: SVC0002
+                Text:
+                  type: string
+                  description: Human-readable error description
+                  example: Invalid input value for message part
+                Variables:
+                  type: string
+                  description: Additional error context
+                  example: address
+    MessageSummary:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: Unique message identifier
+          example: msg-500123
+        from:
+          type: string
+          description: Sender address (phone number or email)
+          example: tel:+12125551234
+        recipients:
+          type: array
+          description: List of recipient addresses
+          items:
+            type: string
+          example:
+          - tel:+12125559999
+        isUnread:
+          type: boolean
+          description: Whether the message has been read
+          example: false
+        isIncoming:
+          type: boolean
+          description: True if message was received, false if sent
+          example: true
+        type:
+          type: string
+          description: Message type
+          enum:
+          - TEXT
+          - MMS
+          example: TEXT
+        typeCode:
+          type: string
+          description: Numeric type code
+          example: '1'
+        timeStamp:
+          type: string
+          format: date-time
+          description: Date and time the message was sent or received
+          example: '2026-04-19T14:30:00Z'
+    DeltaResponse:
+      type: object
+      properties:
+        deltaResponse:
+          type: object
+          properties:
+            addedMessages:
+              type: array
+              description: Messages added since last sync
+              items:
+                $ref: '#/components/schemas/MessageSummary'
+            updatedMessages:
+              type: array
+              description: Messages updated since last sync
+              items:
+                $ref: '#/components/schemas/MessageSummary'
+            deletedMessages:
+              type: array
+              description: Message IDs deleted since last sync
+              items:
+                type: string
+              example: []
+            state:
+              type: string
+              description: New state token for next delta sync call
+              example: state-e5f6g7h8
+    MessageIndexResponse:
+      type: object
+      properties:
+        messageIndexInfo:
+          type: object
+          properties:
+            state:
+              type: string
+              description: State token to use for delta synchronization
+              example: state-a1b2c3d4
+            status:
+              type: string
+              description: Index creation status
+              enum:
+              - INITIALIZED
+              - IN_PROGRESS
+              - COMPLETE
+              example: INITIALIZED
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: AT&T OAuth 2.0 with user consent via authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.att.com/oauth/v4/authorize
+          tokenUrl: https://api.att.com/oauth/v4/token
+          scopes:
+            IMMN: Send Message - send MMS and SMS messages on behalf of user
+            MIM: Message Inbox Management - read, update, and delete messages

@@ -1,0 +1,348 @@
+openapi: 3.0.3
+info:
+  title: AT&T In-App Messaging Authentication SMS Messaging API
+  description: A messaging API enabling applications to send, receive, update, and delete MMS and SMS messages on behalf of AT&T users with explicit OAuth consent. Supports messages to phone numbers, short codes, and email addresses across AT&T and other carriers with full inbox management and delta synchronization.
+  version: '2.0'
+  contact:
+    url: https://developer.att.com/support
+  termsOfService: https://www.att.com/gen/general?pid=11561
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+- url: https://api.att.com
+  description: AT&T API Gateway
+tags:
+- name: SMS Messaging
+paths:
+  /sms/v3/messaging/outbox:
+    post:
+      operationId: sendSms
+      summary: AT&T Send SMS Message
+      description: Send an SMS message to one or more recipients using a registered AT&T short code. Supports up to 50 recipients per request and messages up to 4096 characters. Optionally request delivery status notifications via callback.
+      tags:
+      - SMS Messaging
+      security:
+      - oauth2:
+        - SMS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSmsRequest'
+            examples:
+              SendSmsRequestExample:
+                summary: Default sendSms request
+                x-microcks-default: true
+                value:
+                  outboundSMSRequest:
+                    address:
+                    - tel:+12125551234
+                    message: Your verification code is 482910. Valid for 10 minutes.
+                    notifyDeliveryStatus: true
+      responses:
+        '201':
+          description: SMS message successfully queued for delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendSmsResponse'
+              examples:
+                SendSms201Example:
+                  summary: Default sendSms 201 response
+                  x-microcks-default: true
+                  value:
+                    outboundSMSResponse:
+                      messageId: msg-500123
+                      resourceReference:
+                        resourceURL: https://api.att.com/sms/v3/messaging/outbox/msg-500123
+        '400':
+          description: Bad request - invalid parameters or message format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - insufficient permissions or scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /sms/v3/messaging/outbox/{messageId}:
+    get:
+      operationId: getSmsDeliveryStatus
+      summary: AT&T Get SMS Delivery Status
+      description: Retrieve the delivery status of a previously sent SMS message using its message ID. Returns delivery status such as DeliveredToNetwork, DeliveredToTerminal, or DeliveryImpossible.
+      tags:
+      - SMS Messaging
+      security:
+      - oauth2:
+        - SMS
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        description: The unique message identifier returned by the Send SMS operation
+        schema:
+          type: string
+          example: msg-500123
+      responses:
+        '200':
+          description: Delivery status successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryInfoResponse'
+              examples:
+                GetSmsDeliveryStatus200Example:
+                  summary: Default getSmsDeliveryStatus 200 response
+                  x-microcks-default: true
+                  value:
+                    deliveryInfoList:
+                      deliveryInfo:
+                      - address: tel:+12125551234
+                        deliveryStatus: DeliveredToTerminal
+                      resourceURL: https://api.att.com/sms/v3/messaging/outbox/msg-500123
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /sms/v3/messaging/inbox/{registrationId}:
+    get:
+      operationId: getInboundSms
+      summary: AT&T Get Inbound SMS Messages
+      description: Poll for inbound SMS messages sent to the registered short code. Returns messages received since last poll. Short code registration ID is obtained from the AT&T developer account.
+      tags:
+      - SMS Messaging
+      security:
+      - oauth2:
+        - SMS
+      parameters:
+      - name: registrationId
+        in: path
+        required: true
+        description: The short code registration ID from the AT&T developer account
+        schema:
+          type: string
+          example: REG-500123
+      responses:
+        '200':
+          description: Inbound messages successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundSmsResponse'
+              examples:
+                GetInboundSms200Example:
+                  summary: Default getInboundSms 200 response
+                  x-microcks-default: true
+                  value:
+                    inboundSMSMessageList:
+                      inboundSMSMessage:
+                      - messageId: msg-500456
+                        message: STOP
+                        senderAddress: tel:+12125551234
+                        destinationAddress: '12345'
+                        dateTime: '2026-04-19T14:30:00Z'
+                      numberOfMessagesInThisBatch: 1
+                      resourceURL: https://api.att.com/sms/v3/messaging/inbox/REG-500123
+                      totalNumberOfPendingMessages: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Registration ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    InboundSmsResponse:
+      type: object
+      properties:
+        inboundSMSMessageList:
+          type: object
+          properties:
+            inboundSMSMessage:
+              type: array
+              items:
+                $ref: '#/components/schemas/InboundSmsMessage'
+            numberOfMessagesInThisBatch:
+              type: integer
+              description: Number of messages in this response batch
+              example: 1
+            resourceURL:
+              type: string
+              format: uri
+              description: URL of this inbox resource
+              example: https://api.att.com/sms/v3/messaging/inbox/REG-500123
+            totalNumberOfPendingMessages:
+              type: integer
+              description: Total number of messages waiting to be retrieved
+              example: 0
+    InboundSmsMessage:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: Unique identifier for the inbound message
+          example: msg-500456
+        message:
+          type: string
+          description: SMS message text content
+          example: STOP
+        senderAddress:
+          type: string
+          description: Phone number of the message sender in tel:+E.164 format
+          example: tel:+12125551234
+        destinationAddress:
+          type: string
+          description: Short code that received the message
+          example: '12345'
+        dateTime:
+          type: string
+          format: date-time
+          description: Date and time when the message was received
+          example: '2026-04-19T14:30:00Z'
+    ErrorResponse:
+      type: object
+      properties:
+        RequestError:
+          type: object
+          properties:
+            ServiceException:
+              type: object
+              properties:
+                MessageId:
+                  type: string
+                  description: Error message ID
+                  example: SVC0002
+                Text:
+                  type: string
+                  description: Human-readable error description
+                  example: Invalid input value for message part
+                Variables:
+                  type: string
+                  description: Additional error context variables
+                  example: address
+    SendSmsRequest:
+      type: object
+      required:
+      - outboundSMSRequest
+      properties:
+        outboundSMSRequest:
+          type: object
+          required:
+          - address
+          - message
+          properties:
+            address:
+              type: array
+              description: List of destination phone numbers in tel:+E.164 format (max 50)
+              items:
+                type: string
+                example: tel:+12125551234
+              example:
+              - tel:+12125551234
+            message:
+              type: string
+              description: SMS message text (max 4096 characters)
+              example: Your verification code is 482910. Valid for 10 minutes.
+            notifyDeliveryStatus:
+              type: boolean
+              description: If true, delivery status notifications are sent to the registered callback URL
+              example: true
+    DeliveryInfo:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Recipient phone number
+          example: tel:+12125551234
+        deliveryStatus:
+          type: string
+          description: Current delivery status of the message
+          enum:
+          - DeliveredToNetwork
+          - DeliveredToTerminal
+          - DeliveryImpossible
+          - MessageWaiting
+          - DeliveryUncertain
+          example: DeliveredToTerminal
+    DeliveryInfoResponse:
+      type: object
+      properties:
+        deliveryInfoList:
+          type: object
+          properties:
+            deliveryInfo:
+              type: array
+              items:
+                $ref: '#/components/schemas/DeliveryInfo'
+            resourceURL:
+              type: string
+              format: uri
+              description: URL of this delivery info resource
+              example: https://api.att.com/sms/v3/messaging/outbox/msg-500123
+    SendSmsResponse:
+      type: object
+      properties:
+        outboundSMSResponse:
+          type: object
+          properties:
+            messageId:
+              type: string
+              description: Unique identifier for the sent message
+              example: msg-500123
+            resourceReference:
+              type: object
+              properties:
+                resourceURL:
+                  type: string
+                  format: uri
+                  description: URL to check delivery status of this message
+                  example: https://api.att.com/sms/v3/messaging/outbox/msg-500123
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: AT&T OAuth 2.0 with user consent via authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.att.com/oauth/v4/authorize
+          tokenUrl: https://api.att.com/oauth/v4/token
+          scopes:
+            IMMN: Send Message - send MMS and SMS messages on behalf of user
+            MIM: Message Inbox Management - read, update, and delete messages

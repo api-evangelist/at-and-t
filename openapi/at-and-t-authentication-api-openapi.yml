@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: AT&T In-App Messaging Authentication API
+  description: A messaging API enabling applications to send, receive, update, and delete MMS and SMS messages on behalf of AT&T users with explicit OAuth consent. Supports messages to phone numbers, short codes, and email addresses across AT&T and other carriers with full inbox management and delta synchronization.
+  version: '2.0'
+  contact:
+    url: https://developer.att.com/support
+  termsOfService: https://www.att.com/gen/general?pid=11561
+  x-generated-from: documentation
+  x-last-validated: '2026-04-19'
+servers:
+- url: https://api.att.com
+  description: AT&T API Gateway
+tags:
+- name: Authentication
+paths:
+  /oauth/v4/token:
+    post:
+      operationId: getAccessToken
+      summary: AT&T Get OAuth Access Token
+      description: Obtain an OAuth 2.0 access token using client credentials grant type. The token is required for all subsequent API calls.
+      tags:
+      - Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+            examples:
+              GetAccessTokenRequestExample:
+                summary: Default getAccessToken request
+                x-microcks-default: true
+                value:
+                  client_id: your_app_key
+                  client_secret: your_app_secret
+                  grant_type: client_credentials
+                  scope: SMS
+      responses:
+        '200':
+          description: Access token successfully obtained
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              examples:
+                GetAccessToken200Example:
+                  summary: Default getAccessToken 200 response
+                  x-microcks-default: true
+                  value:
+                    access_token: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+                    expires_in: 172800
+                    refresh_token: f6e5d4c3b2a1f6e5d4c3b2a1f6e5d4c3
+                    token_type: BEARER
+        '400':
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        RequestError:
+          type: object
+          properties:
+            ServiceException:
+              type: object
+              properties:
+                MessageId:
+                  type: string
+                  description: Error message ID
+                  example: SVC0002
+                Text:
+                  type: string
+                  description: Human-readable error description
+                  example: Invalid input value for message part
+                Variables:
+                  type: string
+                  description: Additional error context variables
+                  example: address
+    TokenRequest:
+      type: object
+      required:
+      - client_id
+      - client_secret
+      - grant_type
+      - scope
+      properties:
+        client_id:
+          type: string
+          description: The App Key from your AT&T developer account
+          example: your_app_key
+        client_secret:
+          type: string
+          description: The App Secret from your AT&T developer account
+          example: your_app_secret
+        grant_type:
+          type: string
+          description: OAuth grant type
+          enum:
+          - client_credentials
+          - authorization_code
+          - refresh_token
+          example: client_credentials
+        scope:
+          type: string
+          description: Space-separated list of API scopes (e.g. SMS, MMS, SPEECH)
+          example: SMS
+        code:
+          type: string
+          description: Authorization code (required for authorization_code grant type)
+          example: auth_code_abc123
+        refresh_token:
+          type: string
+          description: Refresh token (required for refresh_token grant type)
+          example: f6e5d4c3b2a1f6e5d4c3b2a1f6e5d4c3
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: OAuth access token valid for 2 days (172800 seconds)
+          example: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds (default 172800)
+          example: 172800
+        refresh_token:
+          type: string
+          description: Refresh token valid for 90 days
+          example: f6e5d4c3b2a1f6e5d4c3b2a1f6e5d4c3
+        token_type:
+          type: string
+          description: Token type (always BEARER)
+          example: BEARER
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: AT&T OAuth 2.0 with user consent via authorization code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.att.com/oauth/v4/authorize
+          tokenUrl: https://api.att.com/oauth/v4/token
+          scopes:
+            IMMN: Send Message - send MMS and SMS messages on behalf of user
+            MIM: Message Inbox Management - read, update, and delete messages
